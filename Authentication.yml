@@ -1,0 +1,241 @@
+openapi: 3.0.1
+info:
+  title: Authentication API
+  description: |+
+
+    Precisely supports OAUTH 2.0 as a standard for our users to access our resources from various applications.
+
+    What is OAUTH 2.0 ?
+    OAuth 2.0 is the industry-standard protocol for authorization. OAuth, which stands for “Open Authorization”, is a standard designed to allow a website or application to access resources hosted by other web apps on behalf of a user. For more details one can visit on the link below.
+
+    [OAUTH 2.0](https://oauth.net/2/)
+
+    What Grant type do we follow ?
+
+    Precisely utilizes the client credentials grant type to access the public APIs we offer. To understand the client credentials OAuth 2.0 flow, you can refer to the following link:
+    [Client credentials grant type](https://developer.okta.com/docs/guides/implement-grant-type/clientcreds/main/#request-for-token)
+
+  version: '1.0'
+servers:
+  - url: https://dis-developer.api.cloud.precisely.com
+paths:
+  /auth/v1/token:
+    post:
+      tags:
+        - Authentication
+      summary: API to Generate Access-Token by providing appropriate credentials in the form of api_key and api_secret
+      description: |+
+
+        This endpoint will generate the `access-token` with respect to the provided access keys. The lifetime of the token is determined by `expires-in` in seconds.
+
+      operationId: generateToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetTokenRequest'
+        required: true
+      responses:
+        '200':
+          description: Token Generated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+        '401':
+          description: 'Unauthorized: Invalid token'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+      deprecated: true
+  /auth/v2/token:
+    post:
+      tags:
+        - Authentication
+      summary: API to Generate OAuth 2.0 Access Token
+      description: |
+
+        **Prerequisite:**
+
+        Before making use of below API user needs to get a hold of API key and API secret from [Data Integrity Suite](https://cloud.precisely.com/apikey).
+
+        **Using API Key and API Secret:**
+
+        API key and API Secret need to be passed as a standard Basic authentication with the API key and API secret base64 encoded.
+
+        Example:
+
+        **Authorization: Basic base64(Key+":"+ secret)**
+
+        This endpoint can generate an 'access-token' based on the provided access keys. The token's duration is determined by the 'expires-in' value in seconds.
+
+        It's generally recommended to use the same access token for multiple API calls until it approaches expiration. To account for any time discrepancies between systems, you may consider renewing the token a few seconds (e.g., around 5 seconds) before it expires.
+
+        For instance: expiryDateTime = now + expires_in - 5
+
+        The access token is typically transmitted in the HTTP Authorization header as a bearer token.
+
+        Example Header:
+        **Authorization: Bearer access_token_value**
+
+        **Scope:**
+
+        For now we only support default scope
+      operationId: generateTokenV2
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenV2Request'
+        required: true
+      responses:
+        '200':
+          description: Token Generated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenV2Response'
+              examples:
+                example:
+                  value:
+                    access_token: <access token value>
+                    token_type: Bearer
+                    expires_in: 3600
+                    scope: default
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OauthErrorResponse'
+              examples:
+                example:
+                  value:
+                    error: invalid_request
+                    error_description: Key/Secret is not provided (DIS-AUTH-1020)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OauthErrorResponse'
+              examples:
+                example:
+                  value:
+                    error: server_error
+                    error_description: Issue with Internal Services. Please try again after sometime (DIS-AUTH-1012)
+      security:
+        - basicAuth: []
+components:
+  schemas:
+    AuthErrorResponse:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          description: Detailed message that explains the actual problem
+    ErrorCode:
+      type: string
+      description: Predefined set of codes to signal issue while consumption
+      enum:
+        - INTERNAL_ERROR
+        - INVALID_USER
+        - INVALID_REQUEST
+        - OPERATION_NOT_ALLOWED
+        - UNAUTHORIZED
+        - NOT_FOUND
+    GetTokenRequest:
+      required:
+        - api_key
+        - api_secret
+      type: object
+      properties:
+        api_key:
+          minLength: 1
+          type: string
+          description: API key generated from DI Suite
+        api_secret:
+          minLength: 1
+          type: string
+          description: API secret generated from DI Suite
+    GrantType:
+      type: string
+      enum:
+        - client_credentials
+    OauthErrorCode:
+      type: string
+      description: Error codes for OAuth 2.0 Token API
+      enum:
+        - invalid_request
+        - invalid_scope
+        - invalid_grant
+        - server_error
+        - unsupported_grant_type
+        - temporarily_unavailable
+    OauthErrorResponse:
+      type: object
+      properties:
+        error:
+          $ref: '#/components/schemas/OauthErrorCode'
+        error_description:
+          type: string
+          description: Detailed message that explains the actual problem
+    TokenResponse:
+      required:
+        - access_token
+        - expires_in
+      type: object
+      properties:
+        access_token:
+          minLength: 1
+          type: string
+          description: Access token which you can use to make subsequent API calls. It is a standard OAuth 2.0 JWT token
+        expires_in:
+          type: integer
+          description: It depicts after how long this token will expire in seconds
+          format: int32
+    TokenV2Request:
+      required:
+        - grant_type
+        - scope
+      type: object
+      properties:
+        grant_type:
+          allOf:
+            - $ref: '#/components/schemas/GrantType'
+            - description: Grant type for token
+        scope:
+          minLength: 1
+          type: string
+          description: Scope for token
+    TokenV2Response:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TokenResponse'
+        - required:
+            - scope
+            - token_type
+          properties:
+            token_type:
+              minLength: 1
+              type: string
+              description: The type of token
+            scope:
+              minLength: 1
+              type: string
+              description: The scope of the token
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
