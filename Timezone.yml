@@ -1,0 +1,498 @@
+openapi: 3.0.1
+info:
+  title: Timezone API
+  description: The Timezone API returns global time zones and UTC offsets with the input of a location coordinate or address. Useful for do-not-call, logistics, and customer engagement applications, business processes and workflows.
+  version: '1.0'
+servers:
+  - url: https://dis-developer.api.cloud.precisely.com
+paths:
+  /v1/timezone/address:
+    post:
+      tags:
+        - Timezone
+      description: |
+        # Overview
+        This endpoint retrieves the local time of any location in the world for a given address. The input and retrieved time format is in milliseconds.
+
+        The retrieved information includes:
+        - Timezone name: Name of the timezone.
+        - Time offset from UTC (in milliseconds): UTC offset time in milliseconds for the given location coordinates.
+        - Daylight Savings offset (in milliseconds): Daylight saving offset time in milliseconds for the given location coordinates.
+        - Timestamp (in milliseconds): UTC (Coordinated Universal Time) in milliseconds.
+      operationId: timezoneAddresses
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimezoneAddressRequest'
+            examples:
+              example:
+                value:
+                  addresses:
+                    - timestamp: 1691138974831
+                      address:
+                        id: '1'
+                        addressLines:
+                          - 950 Josephine Street Denver CO 80204
+                        country: USA
+        required: true
+      responses:
+        '200':
+          description: 'Timezone Retrieved Successfully '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimezoneResponses'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - id: '1'
+                        status: OK
+                        timezone:
+                          timezoneName: Mountain Time (MST/MDT)
+                          zoneType: America/Denver
+                          utcOffset: -25200000
+                          dstOffset: 3600000
+                          timestamp: 1691138974831
+                          matchedAddress:
+                            formattedAddress: 950 JOSEPHINE ST, DENVER CO 80206-3728, United States
+                            formattedLocationAddress: DENVER, CO  80206-3728
+                            admin1: CO
+                            admin2: DENVER COUNTY
+                            city: DENVER
+                            street: JOSEPHINE
+                            country: USA
+                            postalCode: '80206'
+                            postalCodeExt: '3728'
+        '206':
+          description: 'Timezone Retrieved Partially '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimezoneResponses'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - id: '1'
+                        status: OK
+                        timezone:
+                          timezoneName: Mountain Time (MST/MDT)
+                          zoneType: America/Denver
+                          utcOffset: -25200000
+                          dstOffset: 3600000
+                          timestamp: 1691138974831
+                          matchedAddress:
+                            formattedAddress: 950 JOSEPHINE ST, DENVER CO 80206-3728, United States
+                            formattedLocationAddress: DENVER, CO  80206-3728
+                            admin1: CO
+                            admin2: DENVER COUNTY
+                            city: DENVER
+                            street: JOSEPHINE
+                            country: USA
+                            postalCode: '80206'
+                            postalCodeExt: '3728'
+                      - id: '2'
+                        status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-TZ-1011)
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithId'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-TZ-1011)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithId'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-TZ-1009)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithId'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-TZ-1008)
+      security:
+        - bearerAuth: []
+  /v1/timezone/location:
+    post:
+      tags:
+        - Timezone
+      description: |
+        # Overview
+        This endpoint retrieves the local time of any location in the world for a given latitude, longitude and time. The input and retrieved time format is in milliseconds.
+
+        The retrieved information includes:
+        - Timezone name: Name of the timezone.
+        - Time offset from UTC (in milliseconds): UTC offset time in milliseconds for the given location coordinates.
+        - Daylight Savings offset (in milliseconds): Daylight saving offset time in milliseconds for the given location coordinates.
+        - Timestamp (in milliseconds): UTC (Coordinated Universal Time) in milliseconds
+      operationId: timezoneLocations
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimezoneLocationRequest'
+            examples:
+              example:
+                value:
+                  locations:
+                    - id: '1'
+                      timestamp: 1691138974831
+                      geometry:
+                        coordinates:
+                          - -89.398528
+                          - 40.633125
+        required: true
+      responses:
+        '200':
+          description: 'Timezone Retrieved Successfully '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimezoneResponses'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - id: '1'
+                        status: OK
+                        timezone:
+                          timezoneName: Central Time (CST/CDT)
+                          zoneType: America/Chicago
+                          utcOffset: -21600000
+                          dstOffset: 3600000
+                          timestamp: 1691138974831
+        '206':
+          description: 'Timezone Retrieved Partially '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimezoneResponses'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - id: '1'
+                        status: OK
+                        timezone:
+                          timezoneName: Central Time (CST/CDT)
+                          zoneType: America/Chicago
+                          utcOffset: -21600000
+                          dstOffset: 3600000
+                          timestamp: 1691138974831
+                      - id: '2'
+                        status: INVALID_REQUEST
+                        errorMessage: Longitude is invalid (DIS-TZ-1006)
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithId'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Longitude is invalid (DIS-TZ-1006)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithId'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-TZ-1009)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithId'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-TZ-1008)
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    Address:
+      required:
+        - country
+      type: object
+      properties:
+        addressLines:
+          type: array
+          description: Requested address, based on the country's addressing standard.
+          items:
+            type: string
+        admin1:
+          type: string
+          description: The largest geographic area, typically a state or province.
+        admin2:
+          type: string
+          description: The secondary geographic area, typically a county or district.
+        city:
+          type: string
+          description: Specifies a city or town name.
+        borough:
+          type: string
+          description: Unit of local government or other administrative subdivision.
+        suburb:
+          type: string
+          description: Mixed-use or residential area within commuting distance of a city or urban area.
+        postalCode:
+          type: string
+          description: Main postal code.
+        postalCodeExt:
+          type: string
+          description: Secondary postal code, if one exists. For example, in the US, a ZIP+4 is 80125-8012.
+        placeName:
+          type: string
+          description: If applicable, indicates the name of the candidate's place or building.
+        country:
+          type: string
+          description: Values are based on the ISO 3166-1 standard for country codes (returned in alpha-2, alpha-3, or numeric format).
+        id:
+          type: string
+          description: Id for the request.
+    AddressTime:
+      required:
+        - address
+        - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: Specifies UTC time in milliseconds.
+          format: int64
+        address:
+          $ref: '#/components/schemas/Address'
+      description: Addresses to be processed
+    ErrorInfo:
+      required:
+        - errorMessage
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id of the response.
+        status:
+          type: string
+          description: Status of the response.
+        errorMessage:
+          type: string
+          description: Error message from the service.
+      description: Info of Error
+    ErrorResponseWithId:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorInfo'
+    GeometryCoordinates:
+      required:
+        - coordinates
+      type: object
+      properties:
+        coordinates:
+          type: array
+          description: Location Coordinates i.e. Longitude(-180 to 180) and Latitude(-90 to 90) of the Location. (WGS 84 datum/EPSG:4326 coordinate system)
+          items:
+            type: number
+            format: double
+      description: Geometry Details
+    LocationTime:
+      required:
+        - geometry
+        - timestamp
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id for the request.
+          nullable: true
+        timestamp:
+          type: integer
+          description: Specifies UTC time in milliseconds.
+          format: int64
+        geometry:
+          $ref: '#/components/schemas/GeometryCoordinates'
+      description: Locations to be processed
+    MatchedAddress:
+      type: object
+      properties:
+        formattedAddress:
+          type: string
+          description: All components of the address, formatted to the country's standard, on one line.
+        formattedLocationAddress:
+          type: string
+          description: Location portion of the address, formatted to the country's standard.
+        admin1:
+          type: string
+          description: The largest geographic area, typically a state or province.
+        admin2:
+          type: string
+          description: The secondary geographic area, typically a county or district.
+        city:
+          type: string
+          description: Specifies a city or town name.
+        street:
+          type: string
+          description: Street name only (no directional or street suffix).
+        country:
+          type: string
+          description: Values are based on the ISO 3166-1 standard for country codes (returned in alpha-2, alpha-3, or numeric format)
+        postalCode:
+          type: string
+          description: Main postal code.
+        postalCodeExt:
+          type: string
+          description: Secondary postal code, if one exists. For example, in the US, a ZIP+4 is 80125-8012.
+        unit:
+          type: string
+          description: The unit number, such as "3B".
+        unitType:
+          type: string
+          description: A group or suite of rooms within a building that are under common ownership or tenancy, typically having a common entrance. (APT, STE, FLAT, etc.).
+    Status:
+      type: string
+      enum:
+        - OK
+        - ZERO_RESULTS
+        - UNKNOWN_ERROR
+        - INVALID_CONFIGURATION
+        - INVALID_REQUEST
+        - DATA_NOT_LICENSED
+        - REMOTE_EXCEPTION
+        - FATAL_EXCEPTION
+        - SERVICE_UNAVAILABLE
+        - INTERNAL_ERROR
+        - INVALID_CLIENT_INPUT
+        - INVALID_TOKEN
+        - BATCH_SIZE_EXCEEDED
+        - UNAUTHORIZED
+    Timezone:
+      required:
+        - dstOffset
+        - timestamp
+        - timezoneName
+        - utcOffset
+        - zoneType
+      type: object
+      properties:
+        timezoneName:
+          type: string
+          description: Name and abbreviation of the timezone.
+        zoneType:
+          type: string
+          description: Timezone Type
+        utcOffset:
+          type: integer
+          description: Offset in milliseconds from the UTC time
+          format: int64
+        dstOffset:
+          type: integer
+          description: Offset in milliseconds for daylight saving
+          format: int64
+        timestamp:
+          type: integer
+          description: Input UTC timestamp in milliseconds
+          format: int64
+        matchedAddress:
+          $ref: '#/components/schemas/MatchedAddress'
+    TimezoneAddressRequest:
+      required:
+        - addresses
+      type: object
+      properties:
+        addresses:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/AddressTime'
+    TimezoneLocationRequest:
+      required:
+        - locations
+      type: object
+      properties:
+        locations:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationTime'
+    TimezoneResponse:
+      required:
+        - status
+        - timezone
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id for the response
+          nullable: true
+        status:
+          $ref: '#/components/schemas/Status'
+        errorMessage:
+          type: string
+          description: Error message from the service.
+        timezone:
+          $ref: '#/components/schemas/Timezone'
+      description: Responses for requests
+    TimezoneResponses:
+      required:
+        - responses
+      type: object
+      properties:
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimezoneResponse'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

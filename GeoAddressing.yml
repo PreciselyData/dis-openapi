@@ -1,0 +1,3550 @@
+openapi: 3.0.1
+info:
+  title: Geo Addressing APIs
+  description: Precisely Data Integrity Suite offers different Geo Addressing services that can be used to convert physical addresses into geographic coordinates. These services include address validation, standardization, geocoding, reverse geocoding, enhanced geocoding and autocomplete.
+  version: '1.0'
+servers:
+  - url: https://dis-developer.api.cloud.precisely.com
+paths:
+  /li/v1/oas/autocomplete:
+    post:
+      tags:
+        - Geo Addressing
+      summary: Address Autocomplete API
+      description: |
+        # Overview
+
+        This API autocompletes the addresses.The Address Autocomplete API when built into an application, will provide type-ahead capabilities. Only the first few characters of a place or address will yield match candidates. With additional typing, more specific information is revealed and the results are refined to display more relevant candidates.The Address Autocomplete API supports global coverage.
+
+        The following table lists the Request Body Parameters
+
+        | Parameter               | Description                                                                                         |
+        |-------------------------|-----------------------------------------------------------------------------------------------------|
+        | type                    | Specifies whether to return all available information for each candidate.                         |
+        | fallbackToGeographic    | Specifies whether to attempt to determine a geographic region centroid when an address-level geocode cannot be determined.          |
+        | fallbackToPostal        | Specifies whether to attempt to determine a post code centroid when an address-level geocode cannot be determined.              |
+        | maxReturnedCandidates   | The maximum number of candidates to return. Optional. Must be an integer value. Default = 1       |
+        | clientCoordSysName      | Specifies the coordinate system that you want to convert the geometry to. The format must be the European Petroleum Survey Group (EPSG) code or the SRID code.|
+        | matchOnAddressNumber    | Specifies if a match must be made to the input address number.                                    |
+        | matchOnPostCode1        | Specifies if a match must be made to the input address number.                                    |
+        | matchOnAreaName         | Specifies if a match must be made to the input AreaName field.                                     |
+        | matchOnAllStreetFields  | Specifies if a match must be made to the input street name, type, and directional fields.         |
+        | returnAllCustomFields   | Specifies if only the standard set of fields for the candidate should be returned.                |
+        | returnMatchDescriptor   | Specifies if to return the match descriptor object, which indicates the parts of the candidate that matched the input address.|
+        | returnUnitInformation   | Specifies if to return unit type and unit value information separately in the unitType and unitValue fields, as well as in the formattedStreetAddress field.|
+
+
+        ```
+      operationId: autocomplete
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+        - name: X-Transaction-Id
+          in: header
+          description: |
+            By utilizing the X-Transaction-Id, you can logically group multiple related requests together, ensuring they are treated as a single unit of work from our perspective. This means that you won't be charged separately for each request within the same transaction. Instead, you will be billed for the entire transaction as a whole.
+
+            Using the X-Transaction-Id is straightforward; simply include it in the header of your initial request to begin a new transaction. Then, include the same transaction id in subsequent requests that are part of that transaction.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutocompleteRequest'
+            examples:
+              example:
+                value:
+                  preferences:
+                    maxResults: 2
+                    returnAllInfo: true
+                    factoryDescription:
+                      label: ''
+                      featureSpecific: {}
+                    clientLocale: ''
+                    clientCoordSysName: ''
+                    distance:
+                      value: 150
+                      distanceUnit: METER
+                    streetOffset:
+                      value: 7
+                      distanceUnit: METER
+                    cornerOffset:
+                      value: 7
+                      distanceUnit: METER
+                    fallbackToGeographic: false
+                    fallbackToPostal: false
+                    matchMode: ''
+                    returnOfAdditionalFields: false
+                    originXY: []
+                    customPreferences: {}
+                  address:
+                    addressLines:
+                      - 350 Jordan
+                    country: USA
+                    addressNumber: ''
+                    admin1: ''
+                    admin2: ''
+                    city: ''
+                    borough: ''
+                    neighborhood: ''
+                    suburb: ''
+                    postalCode: ''
+                    postalCodeExt: ''
+                    placeName: ''
+                    street: ''
+                    building: ''
+                    floor: ''
+                    room: ''
+                    unit: ''
+                    unitType: ''
+        required: true
+      responses:
+        '200':
+          description: Address autocompleted Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutocompleteResponse'
+              examples:
+                example:
+                  value:
+                    response:
+                      status: OK
+                      predictions:
+                        - prediction: 350 Jordan Ave, Montoursville, PA 17754
+                          distance:
+                            value: -0.0
+                            distanceUnit: METER
+                          address:
+                            formattedAddress: 350 Jordan Ave, Montoursville PA 17754
+                            formattedStreetAddress: 350 Jordan Ave
+                            formattedLocationAddress: Montoursville, PA 17754
+                            addressNumber: '350'
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: PA
+                              shortName: PA
+                            admin2: {}
+                            city:
+                              longName: Montoursville
+                              shortName: Montoursville
+                            neighborhood: {}
+                            postalCode: '17754'
+                            street: Jordan Ave
+                          addressLines:
+                            - 350 Jordan Ave
+                            - Montoursville PA 17754
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -76.91419
+                                  - 41.246719999999996
+                          explanation:
+                            addressMatch:
+                              description:
+                                - label: placeName
+                                  matchType: NONE
+                                - label: addressNumber
+                                  matchType: EXACT
+                                  matchedSubstring: '350'
+                                - label: admin1
+                                  matchType: NONE
+                                - label: admin2
+                                  matchType: NONE
+                                - label: city
+                                  matchType: NONE
+                                - label: neighborhood
+                                  matchType: NONE
+                                - label: suburb
+                                  matchType: NONE
+                                - label: street
+                                  matchType: PARTIAL
+                                  matchedSubstring: JORDAN
+                                - label: postalCode
+                                  matchType: NONE
+                                - label: streetType
+                                  matchType: NONE
+                                - label: postalCodeExt
+                                  matchType: NONE
+                                - label: streetDirectional
+                                  matchType: NONE
+                            source:
+                              label: ggs
+                          customFields:
+                            PB_KEY: P0000JCAW989
+                            DISTANCE: '-0.0'
+                            FROM_CUSTOM_DATASET: 'false'
+                            MATCHED_FROM_ADDRESSNUMBER: '350'
+                            MATCHED_FROM_STREETNAME: JORDAN
+                            ADDRESS_NUMBER_FROM: '350'
+                            POSTAL_VERIFIED: 'YES'
+                            FORMATTED_STRING: 350 Jordan Ave, Montoursville, PA 17754
+                            RECORD_TYPE: '2'
+                            FEATUREID: '102759609'
+                            ZIP4: '2210'
+                            DISTANCE_UNIT: METERS
+                        - prediction: 350 S Jordan Ave, San Jacinto, CA 92583
+                          distance:
+                            value: -0.0
+                            distanceUnit: METER
+                          address:
+                            formattedAddress: 350 S Jordan Ave, San Jacinto CA 92583
+                            formattedStreetAddress: 350 S Jordan Ave
+                            formattedLocationAddress: San Jacinto, CA 92583
+                            addressNumber: '350'
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: CA
+                              shortName: CA
+                            admin2: {}
+                            city:
+                              longName: San Jacinto
+                              shortName: San Jacinto
+                            neighborhood: {}
+                            postalCode: '92583'
+                            street: S Jordan Ave
+                          addressLines:
+                            - 350 S Jordan Ave
+                            - San Jacinto CA 92583
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -116.95680999999999
+                                  - 33.782465
+                          explanation:
+                            addressMatch:
+                              description:
+                                - label: placeName
+                                  matchType: NONE
+                                - label: addressNumber
+                                  matchType: EXACT
+                                  matchedSubstring: '350'
+                                - label: admin1
+                                  matchType: NONE
+                                - label: admin2
+                                  matchType: NONE
+                                - label: city
+                                  matchType: NONE
+                                - label: neighborhood
+                                  matchType: NONE
+                                - label: suburb
+                                  matchType: NONE
+                                - label: street
+                                  matchType: PARTIAL
+                                  matchedSubstring: JORDAN
+                                - label: postalCode
+                                  matchType: NONE
+                                - label: streetType
+                                  matchType: NONE
+                                - label: postalCodeExt
+                                  matchType: NONE
+                                - label: streetDirectional
+                                  matchType: NONE
+                            source:
+                              label: ggs
+                          customFields:
+                            PB_KEY: P00002SZL9FS
+                            DISTANCE: '-0.0'
+                            FROM_CUSTOM_DATASET: 'false'
+                            MATCHED_FROM_ADDRESSNUMBER: '350'
+                            MATCHED_FROM_STREETNAME: JORDAN
+                            ADDRESS_NUMBER_FROM: '350'
+                            POSTAL_VERIFIED: 'YES'
+                            FORMATTED_STRING: 350 S Jordan Ave, San Jacinto, CA 92583
+                            RECORD_TYPE: '2'
+                            FEATUREID: '106396168'
+                            ZIP4: '3512'
+                            DISTANCE_UNIT: METERS
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-LI-1016)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+  /li/v1/oas/geocode:
+    post:
+      tags:
+        - Geo Addressing
+      summary: Address Geocode API
+      description: |
+        # Overview
+
+        This API geocodes the addresses. It takes a single input address or multiple input addresses and returns standardized US or international address and geocoding information. The Address Geocode API supports global coverage.
+
+        **The following table lists the Request Body Parameters**
+
+        | Parameter               | Description                                                                                         |
+        |-------------------------|-----------------------------------------------------------------------------------------------------|
+        | type                    | Specifies whether to return all available information for each candidate.                         |
+        | fallbackToGeographic    | Specifies whether to attempt to determine a geographic region centroid when an address-level geocode cannot be determined.          |
+        | fallbackToPostal        | Specifies whether to attempt to determine a post code centroid when an address-level geocode cannot be determined.              |
+        | maxReturnedCandidates   | The maximum number of candidates to return. Optional. Must be an integer value. Default = 1       |
+        | clientCoordSysName      | Specifies the coordinate system that you want to convert the geometry to. The format must be the European Petroleum Survey Group (EPSG) code or the SRID code.|
+        | matchOnAddressNumber    | Specifies if a match must be made to the input address number.                                    |
+        | matchOnPostCode1        | Specifies if a match must be made to the input address number.                                    |
+        | matchOnAreaName         | Specifies if a match must be made to the input AreaName field.                                     |
+        | matchOnAllStreetFields  | Specifies if a match must be made to the input street name, type, and directional fields.         |
+        | returnAllCustomFields   | Specifies if only the standard set of fields for the candidate should be returned.                |
+        | returnMatchDescriptor   | Specifies if to return the match descriptor object, which indicates the parts of the candidate that matched the input address.|
+        | returnUnitInformation   | Specifies if to return unit type and unit value information separately in the unitType and unitValue fields, as well as in the formattedStreetAddress field.|
+
+
+        The Gecode API also supports Custom Preferences. These preferences are for use with any country dataset.
+        For more details on thses preferences see <a href="https://docs.precisely.services/docs/sftw/ggs/Review/en-us/apis/webhelp/DISuite/GeoAddress/custom_preferences_geocode_address_service.html">Custom Preferences</a>
+        ```
+      operationId: geocode
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeocodeRequest'
+            examples:
+              example:
+                value:
+                  preferences:
+                    maxResults: 1
+                    returnAllInfo: true
+                    factoryDescription:
+                      label: ''
+                      featureSpecific: {}
+                    clientLocale: ''
+                    clientCoordSysName: ''
+                    distance:
+                      value: 150
+                      distanceUnit: METER
+                    streetOffset:
+                      value: 7
+                      distanceUnit: METER
+                    cornerOffset:
+                      value: 7
+                      distanceUnit: METER
+                    fallbackToGeographic: false
+                    fallbackToPostal: false
+                    matchMode: ''
+                    returnOfAdditionalFields: false
+                    originXY: []
+                    customPreferences: {}
+                  addresses:
+                    - addressId: '1'
+                      addressLines:
+                        - '1700 District Ave #300 Burlington, MA'
+                      country: USA
+                      addressNumber: ''
+                      admin1: ''
+                      admin2: ''
+                      city: ''
+                      borough: ''
+                      neighborhood: ''
+                      suburb: ''
+                      postalCode: ''
+                      postalCodeExt: ''
+                      placeName: ''
+                      street: ''
+                      building: ''
+                      floor: ''
+                      room: ''
+                      unit: ''
+                      unitType: ''
+        required: true
+      responses:
+        '200':
+          description: Address geocoded Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeocodeResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - status: OK
+                        results:
+                          - score: 97
+                            address:
+                              formattedAddress: 1700 DISTRICT AVE STE 300, BURLINGTON MA 01803-5231, United States
+                              formattedStreetAddress: 1700 DISTRICT AVE STE 300
+                              formattedLocationAddress: BURLINGTON, MA  01803-5231
+                              addressNumber: '1700'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: Massachusetts
+                                shortName: MA
+                              admin2:
+                                longName: MIDDLESEX COUNTY
+                                shortName: MIDDLESEX COUNTY
+                              city:
+                                longName: BURLINGTON
+                                shortName: BURLINGTON
+                              postalCode: '01803'
+                              postalCodeExt: '5231'
+                              unit: '300'
+                              unitType: STE
+                              street: DISTRICT
+                            addressLines:
+                              - 1700 DISTRICT AVE STE 300
+                              - BURLINGTON MA 01803-5231
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -71.207799
+                                    - 42.483939
+                            explanation:
+                              addressMatch:
+                                type: ADDRESS
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: EXACT
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '14677'
+                              CSA_NUMBER: '148'
+                              TYPE_SHORT: AVE
+                              THOROUGHFARE_TYPE: AVE
+                              HIUNIT: '300'
+                              PARCEN_ELEVATION_METERS: '44.2'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: S902
+                              RDI_RETCODE: 'N'
+                              COUNTY: '25017'
+                              PB_KEY: P0000BJ4F90Q
+                              LANGUAGE: en
+                              UNIT_TYPE: STE
+                              ADDRTYPE: M
+                              INC_IND: 'N'
+                              BLOCK_2010: '250173324002012'
+                              POINT_ID: '100893034'
+                              CHECK_DIGIT: '5'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '250173324011003'
+                              POST_THOROUGHFARE_TYPE: AVE
+                              QCITY: '250065000'
+                              ZIP_FACILITY: P
+                              TFID: '258319428'
+                              UNIT_RANGE_PARITY: E
+                              APN_ID: 048 46-51-0
+                              LOT_CODE: A
+                              LOT_NUM: '0212'
+                              GEOHASH: drt3etunfh0x
+                              CTYST_KEY: V21569
+                              UACEPOP: '4181019'
+                              NAME: DISTRICT
+                              ZIP_CARRTSORT: B
+                              PARENT_ID: P0000BJ68DL3
+                              LORANGE: '1700'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOUNIT: '300'
+                              LOC_CODE: AP05
+                              CART: C023
+                              NAME_CITY: BURLINGTON
+                              BLOCK_LEFT: '250173324011003'
+                              COUNTY_FIPS: '25017'
+                              HIRANGE: '1700'
+                              UACE: '09271'
+                              REC_TYPE: H
+                              HI_RISE_DFLT: 'N'
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              MATCH_TYPE: ADDRESS
+                              PARCEN_ELEVATION: '145'
+                              PREF_CITY: BURLINGTON
+                              CBSA_NUMBER: '14460'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1700 DISTRICT AVE STE 300
+                              LOTSIZE: '157983'
+                              CONFIDENCE: '89'
+                              HIZIP4: '5231'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: R
+                              CBSA_DIVISION_NAME: CAMBRIDGE-NEWTON-FRAMINGHAM, MA METROPOLITAN DIVISION
+                              LOZIP4: '5231'
+                              CSA_NAME: BOSTON-WORCESTER-PROVIDENCE, MA-RI-NH-CT COMBINED STATISTICAL AREA
+                              DPBC: '75'
+                              LASTLINE_SHORT: BURLINGTON, MA  01803-5231
+                              PLACE: '2509875'
+                              CITY_SHORT: BURLINGTON
+                              NAME_SHORT: DISTRICT
+                              ZIP9: '018035231'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8HPNTSC-A
+                              ZIP10: 01803-5231
+                              CBSA_NAME: BOSTON-CAMBRIDGE-NEWTON, MA-NH METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: E
+                              CBSA_DIVISION_NUMBER: '15764'
+        '206':
+          description: Address geocoded Partially
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeocodeResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - errorMessage: Not able to identify ABC country
+                        status: INVALID_REQUEST
+                      - status: OK
+                        results:
+                          - score: 97
+                            address:
+                              formattedAddress: 1700 DISTRICT AVE STE 300, BURLINGTON MA 01803-5231, United States
+                              formattedStreetAddress: 1700 DISTRICT AVE STE 300
+                              formattedLocationAddress: BURLINGTON, MA01803-5231
+                              addressNumber: '1700'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: Massachusetts
+                                shortName: MA
+                              admin2:
+                                longName: MIDDLESEX COUNTY
+                                shortName: MIDDLESEX COUNTY
+                              city:
+                                longName: BURLINGTON
+                                shortName: BURLINGTON
+                              postalCode: '01803'
+                              postalCodeExt: '5231'
+                              unit: '300'
+                              unitType: STE
+                              street: DISTRICT
+                            addressLines:
+                              - 1700 DISTRICT AVE STE 300
+                              - BURLINGTON MA 01803-5231
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -71.207799
+                                    - 42.483939
+                            explanation:
+                              addressMatch:
+                                type: ADDRESS
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: EXACT
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '14677'
+                              CSA_NUMBER: '148'
+                              TYPE_SHORT: AVE
+                              THOROUGHFARE_TYPE: AVE
+                              HIUNIT: '300'
+                              PARCEN_ELEVATION_METERS: '44.2'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: S902
+                              RDI_RETCODE: 'N'
+                              COUNTY: '25017'
+                              PB_KEY: P0000BJ4F90Q
+                              LANGUAGE: en
+                              UNIT_TYPE: STE
+                              ADDRTYPE: M
+                              INC_IND: 'N'
+                              BLOCK_2010: '250173324002012'
+                              POINT_ID: '100893034'
+                              CHECK_DIGIT: '5'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '250173324011003'
+                              POST_THOROUGHFARE_TYPE: AVE
+                              QCITY: '250065000'
+                              ZIP_FACILITY: P
+                              TFID: '258319428'
+                              UNIT_RANGE_PARITY: E
+                              APN_ID: 048 46-51-0
+                              LOT_CODE: A
+                              LOT_NUM: '0212'
+                              GEOHASH: drt3etunfh0x
+                              CTYST_KEY: V21569
+                              UACEPOP: '4181019'
+                              NAME: DISTRICT
+                              ZIP_CARRTSORT: B
+                              PARENT_ID: P0000BJ68DL3
+                              LORANGE: '1700'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOUNIT: '300'
+                              LOC_CODE: AP05
+                              CART: C023
+                              NAME_CITY: BURLINGTON
+                              BLOCK_LEFT: '250173324011003'
+                              COUNTY_FIPS: '25017'
+                              HIRANGE: '1700'
+                              UACE: '09271'
+                              REC_TYPE: H
+                              HI_RISE_DFLT: 'N'
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              MATCH_TYPE: ADDRESS
+                              PARCEN_ELEVATION: '145'
+                              PREF_CITY: BURLINGTON
+                              CBSA_NUMBER: '14460'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1700 DISTRICT AVE STE 300
+                              LOTSIZE: '157983'
+                              CONFIDENCE: '89'
+                              HIZIP4: '5231'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: R
+                              CBSA_DIVISION_NAME: CAMBRIDGE-NEWTON-FRAMINGHAM, MA METROPOLITAN DIVISION
+                              LOZIP4: '5231'
+                              CSA_NAME: BOSTON-WORCESTER-PROVIDENCE, MA-RI-NH-CT COMBINED STATISTICAL AREA
+                              DPBC: '75'
+                              LASTLINE_SHORT: BURLINGTON, MA01803-5231
+                              PLACE: '2509875'
+                              CITY_SHORT: BURLINGTON
+                              NAME_SHORT: DISTRICT
+                              ZIP9: '018035231'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8HPNTSC-A
+                              ZIP10: 01803-5231
+                              CBSA_NAME: BOSTON-CAMBRIDGE-NEWTON, MA-NH METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: E
+                              CBSA_DIVISION_NUMBER: '15764'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-LI-1016)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+  /li/v1/oas/lookup:
+    post:
+      tags:
+        - Geo Addressing
+      summary: Address Lookup API
+      description: |
+        # Overview
+
+        This API allows to find an address using a PreciselyID unique identifier as input and return all standard returns that are provided as part of address matching.
+
+        **Note**: Currently, there are no preferences get honoured for this Address Lookup API.
+      operationId: lookup
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LookupRequest'
+            examples:
+              example:
+                value:
+                  preferences:
+                    maxResults: 1
+                    returnAllInfo: true
+                    factoryDescription:
+                      label: ''
+                      featureSpecific: {}
+                    clientLocale: ''
+                    clientCoordSysName: ''
+                    distance:
+                      value: 150
+                      distanceUnit: METER
+                    streetOffset:
+                      value: 7
+                      distanceUnit: METER
+                    cornerOffset:
+                      value: 7
+                      distanceUnit: METER
+                    fallbackToGeographic: false
+                    fallbackToPostal: false
+                    matchMode: ''
+                    returnOfAdditionalFields: false
+                    originXY: []
+                    customPreferences: {}
+                  keys:
+                    - key: P0000GL41OME
+                      country: USA
+                      type: PB_KEY
+        required: true
+      responses:
+        '200':
+          description: Address lookup Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - status: OK
+                        results:
+                          - score: 0
+                            address:
+                              formattedAddress: 1 GLOBAL VW, TROY NY 12180-8371, United States
+                              formattedStreetAddress: 1 GLOBAL VW
+                              formattedLocationAddress: TROY, NY  12180-8371
+                              addressNumber: '1'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: New York
+                                shortName: NY
+                              admin2:
+                                longName: RENSSELAER COUNTY
+                                shortName: RENSSELAER COUNTY
+                              city:
+                                longName: TROY
+                                shortName: TROY
+                              postalCode: '12180'
+                              postalCodeExt: '8371'
+                              street: GLOBAL
+                            addressLines:
+                              - 1 GLOBAL VW
+                              - TROY NY 12180-8371
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -73.704719
+                                    - 42.682251
+                            explanation:
+                              addressMatch:
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: NONE
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: EXACT
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: EXACT
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '56129'
+                              CSA_NUMBER: '104'
+                              TYPE_SHORT: VW
+                              THOROUGHFARE_TYPE: VW
+                              PARCEN_ELEVATION_METERS: '53.3'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: V000
+                              COUNTY: '36083'
+                              PB_KEY: P0000GL41OME
+                              LANGUAGE: en
+                              ADDRTYPE: S
+                              INC_IND: 'N'
+                              BLOCK_2010: '360830523011008'
+                              POINT_ID: '105104102'
+                              CHECK_DIGIT: '8'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '360830523011008'
+                              POST_THOROUGHFARE_TYPE: VW
+                              QCITY: '361297000'
+                              ZIP_FACILITY: P
+                              TFID: '259333880'
+                              APN_ID: 383200 122.-1-4.221
+                              LOT_CODE: A
+                              LOT_NUM: '0048'
+                              GEOHASH: dredff1f5s60
+                              CTYST_KEY: V16572
+                              UACEPOP: '594962'
+                              NAME: GLOBAL
+                              ZIP_CARRTSORT: D
+                              LORANGE: '1'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOC_CODE: AP05
+                              CART: C099
+                              NAME_CITY: TROY
+                              BLOCK_LEFT: '360830523011008'
+                              COUNTY_FIPS: '36083'
+                              HIRANGE: '1'
+                              UACE: '00970'
+                              REC_TYPE: S
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              PARCEN_ELEVATION: '175'
+                              PREF_CITY: TROY
+                              CBSA_NUMBER: '10580'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1 GLOBAL VW
+                              LOTSIZE: '604172'
+                              CONFIDENCE: '96'
+                              HIZIP4: '8371'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: L
+                              LOZIP4: '8371'
+                              CSA_NAME: ALBANY-SCHENECTADY, NY COMBINED STATISTICAL AREA
+                              DPBC: '01'
+                              LASTLINE_SHORT: TROY, NY  12180-8371
+                              PLACE: '0'
+                              CITY_SHORT: TROY
+                              NAME_SHORT: GLOBAL
+                              ZIP9: '121808371'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8H------A
+                              ZIP10: 12180-8371
+                              CBSA_NAME: ALBANY-SCHENECTADY-TROY, NY METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: O
+        '206':
+          description: Address lookup Partially
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - errorMessage: Not able to identify ABC country
+                        status: INVALID_REQUEST
+                      - status: OK
+                        results:
+                          - score: 0
+                            address:
+                              formattedAddress: 1 GLOBAL VW, TROY NY 12180-8371, United States
+                              formattedStreetAddress: 1 GLOBAL VW
+                              formattedLocationAddress: TROY, NY  12180-8371
+                              addressNumber: '1'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: New York
+                                shortName: NY
+                              admin2:
+                                longName: RENSSELAER COUNTY
+                                shortName: RENSSELAER COUNTY
+                              city:
+                                longName: TROY
+                                shortName: TROY
+                              postalCode: '12180'
+                              postalCodeExt: '8371'
+                              street: GLOBAL
+                            addressLines:
+                              - 1 GLOBAL VW
+                              - TROY NY 12180-8371
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -73.704719
+                                    - 42.682251
+                            explanation:
+                              addressMatch:
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: NONE
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: EXACT
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: EXACT
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '56129'
+                              CSA_NUMBER: '104'
+                              TYPE_SHORT: VW
+                              THOROUGHFARE_TYPE: VW
+                              PARCEN_ELEVATION_METERS: '53.3'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: V000
+                              COUNTY: '36083'
+                              PB_KEY: P0000GL41OME
+                              LANGUAGE: en
+                              ADDRTYPE: S
+                              INC_IND: 'N'
+                              BLOCK_2010: '360830523011008'
+                              POINT_ID: '105104102'
+                              CHECK_DIGIT: '8'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '360830523011008'
+                              POST_THOROUGHFARE_TYPE: VW
+                              QCITY: '361297000'
+                              ZIP_FACILITY: P
+                              TFID: '259333880'
+                              APN_ID: 383200 122.-1-4.221
+                              LOT_CODE: A
+                              LOT_NUM: '0048'
+                              GEOHASH: dredff1f5s60
+                              CTYST_KEY: V16572
+                              UACEPOP: '594962'
+                              NAME: GLOBAL
+                              ZIP_CARRTSORT: D
+                              LORANGE: '1'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOC_CODE: AP05
+                              CART: C099
+                              NAME_CITY: TROY
+                              BLOCK_LEFT: '360830523011008'
+                              COUNTY_FIPS: '36083'
+                              HIRANGE: '1'
+                              UACE: '00970'
+                              REC_TYPE: S
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              PARCEN_ELEVATION: '175'
+                              PREF_CITY: TROY
+                              CBSA_NUMBER: '10580'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1 GLOBAL VW
+                              LOTSIZE: '604172'
+                              CONFIDENCE: '96'
+                              HIZIP4: '8371'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: L
+                              LOZIP4: '8371'
+                              CSA_NAME: ALBANY-SCHENECTADY, NY COMBINED STATISTICAL AREA
+                              DPBC: '01'
+                              LASTLINE_SHORT: TROY, NY  12180-8371
+                              PLACE: '0'
+                              CITY_SHORT: TROY
+                              NAME_SHORT: GLOBAL
+                              ZIP9: '121808371'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8H------A
+                              ZIP10: 12180-8371
+                              CBSA_NAME: ALBANY-SCHENECTADY-TROY, NY METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: O
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-LI-1016)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+  /li/v1/oas/reverse-geocode:
+    post:
+      tags:
+        - Geo Addressing
+      summary: Address Reverse Geocode API
+      description: API to reverse-geocode the addresses
+      operationId: reverseGeocode
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReverseGeocodeRequest'
+            examples:
+              example:
+                value:
+                  preferences:
+                    maxResults: 1
+                    returnAllInfo: true
+                    factoryDescription:
+                      label: ''
+                      featureSpecific: {}
+                    clientLocale: ''
+                    clientCoordSysName: ''
+                    distance:
+                      value: 150
+                      distanceUnit: METER
+                    streetOffset:
+                      value: 7
+                      distanceUnit: METER
+                    cornerOffset:
+                      value: 7
+                      distanceUnit: METER
+                    fallbackToGeographic: false
+                    fallbackToPostal: false
+                    matchMode: ''
+                    returnOfAdditionalFields: false
+                    originXY: []
+                    customPreferences: {}
+                  locations:
+                    - addressId: '1'
+                      longitude: -73.704719
+                      latitude: 42.682251
+                      country: USA
+        required: true
+      responses:
+        '200':
+          description: Location reverse-geocoded Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReverseGeocodeResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - status: OK
+                        results:
+                          - score: 0
+                            address:
+                              formattedAddress: 1 GLOBAL VW, TROY NY 12180-8371, United States
+                              formattedStreetAddress: 1 GLOBAL VW
+                              formattedLocationAddress: TROY, NY12180-8371
+                              addressNumber: '1'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: New York
+                                shortName: NY
+                              admin2:
+                                longName: RENSSELAER COUNTY
+                                shortName: RENSSELAER COUNTY
+                              city:
+                                longName: TROY
+                                shortName: TROY
+                              postalCode: '12180'
+                              postalCodeExt: '8371'
+                              street: GLOBAL
+                            addressLines:
+                              - 1 GLOBAL VW
+                              - TROY NY 12180-8371
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -73.704719
+                                    - 42.682251
+                            explanation:
+                              addressMatch:
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: NONE
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '56129'
+                              CSA_NUMBER: '104'
+                              TYPE_SHORT: VW
+                              THOROUGHFARE_TYPE: VW
+                              PARCEN_ELEVATION_METERS: '53.3'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: NP0
+                              COUNTY: '36083'
+                              PB_KEY: P0000GL41OME
+                              LANGUAGE: en
+                              ADDRTYPE: S
+                              INC_IND: 'N'
+                              BLOCK_2010: '360830523011008'
+                              POINT_ID: '105104102'
+                              CHECK_DIGIT: '8'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '360830523011008'
+                              POST_THOROUGHFARE_TYPE: VW
+                              QCITY: '361297000'
+                              ZIP_FACILITY: P
+                              TFID: '259333880'
+                              APN_ID: 383200 122.-1-4.221
+                              LOT_CODE: A
+                              LOT_NUM: '0048'
+                              CTYST_KEY: V16572
+                              UACEPOP: '594962'
+                              NAME: GLOBAL
+                              ZIP_CARRTSORT: D
+                              LORANGE: '1'
+                              CLOSE_MATCH: T
+                              REVERSE_GEOCODE_DISTANCE: '0.0'
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOC_CODE: AP05
+                              CART: C099
+                              NAME_CITY: TROY
+                              BLOCK_LEFT: '360830523011008'
+                              REVERSE_GEOCODE_DISTANCE_UNIT: METERS
+                              COUNTY_FIPS: '36083'
+                              HIRANGE: '1'
+                              UACE: '00970'
+                              REC_TYPE: S
+                              URBANICITY: L
+                              RESOLVED_LINE: '5'
+                              PARCEN_ELEVATION: '175'
+                              PREF_CITY: TROY
+                              CBSA_NUMBER: '10580'
+                              ALT_FLAG: B
+                              ADDRLINE_SHORT: 1 GLOBAL VW
+                              LOTSIZE: '604172'
+                              CONFIDENCE: '100'
+                              DATATYPE_NAME: MASTER LOCATION
+                              CSA_NAME: ALBANY-SCHENECTADY, NY COMBINED STATISTICAL AREA
+                              DPBC: '01'
+                              PERCENT_GEOCODE: '0.0'
+                              LASTLINE_SHORT: TROY, NY12180-8371
+                              PLACE: '0'
+                              CITY_SHORT: TROY
+                              NAME_SHORT: GLOBAL
+                              ZIP9: '121808371'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: RS8A
+                              ZIP10: 12180-8371
+                              CBSA_NAME: ALBANY-SCHENECTADY-TROY, NY METROPOLITAN STATISTICAL AREA
+        '206':
+          description: Location reverse-geocoded Partially
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReverseGeocodeResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - errorMessage: Not able to identify ABC country
+                        status: INVALID_REQUEST
+                      - status: OK
+                        results:
+                          - score: 0
+                            address:
+                              formattedAddress: 1 GLOBAL VW, TROY NY 12180-8371, United States
+                              formattedStreetAddress: 1 GLOBAL VW
+                              formattedLocationAddress: TROY, NY12180-8371
+                              addressNumber: '1'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: New York
+                                shortName: NY
+                              admin2:
+                                longName: RENSSELAER COUNTY
+                                shortName: RENSSELAER COUNTY
+                              city:
+                                longName: TROY
+                                shortName: TROY
+                              postalCode: '12180'
+                              postalCodeExt: '8371'
+                              street: GLOBAL
+                            addressLines:
+                              - 1 GLOBAL VW
+                              - TROY NY 12180-8371
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -73.704719
+                                    - 42.682251
+                            explanation:
+                              addressMatch:
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: NONE
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '56129'
+                              CSA_NUMBER: '104'
+                              TYPE_SHORT: VW
+                              THOROUGHFARE_TYPE: VW
+                              PARCEN_ELEVATION_METERS: '53.3'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: NP0
+                              COUNTY: '36083'
+                              PB_KEY: P0000GL41OME
+                              LANGUAGE: en
+                              ADDRTYPE: S
+                              INC_IND: 'N'
+                              BLOCK_2010: '360830523011008'
+                              POINT_ID: '105104102'
+                              CHECK_DIGIT: '8'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '360830523011008'
+                              POST_THOROUGHFARE_TYPE: VW
+                              QCITY: '361297000'
+                              ZIP_FACILITY: P
+                              TFID: '259333880'
+                              APN_ID: 383200 122.-1-4.221
+                              LOT_CODE: A
+                              LOT_NUM: '0048'
+                              CTYST_KEY: V16572
+                              UACEPOP: '594962'
+                              NAME: GLOBAL
+                              ZIP_CARRTSORT: D
+                              LORANGE: '1'
+                              CLOSE_MATCH: T
+                              REVERSE_GEOCODE_DISTANCE: '0.0'
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOC_CODE: AP05
+                              CART: C099
+                              NAME_CITY: TROY
+                              BLOCK_LEFT: '360830523011008'
+                              REVERSE_GEOCODE_DISTANCE_UNIT: METERS
+                              COUNTY_FIPS: '36083'
+                              HIRANGE: '1'
+                              UACE: '00970'
+                              REC_TYPE: S
+                              URBANICITY: L
+                              RESOLVED_LINE: '5'
+                              PARCEN_ELEVATION: '175'
+                              PREF_CITY: TROY
+                              CBSA_NUMBER: '10580'
+                              ALT_FLAG: B
+                              ADDRLINE_SHORT: 1 GLOBAL VW
+                              LOTSIZE: '604172'
+                              CONFIDENCE: '100'
+                              DATATYPE_NAME: MASTER LOCATION
+                              CSA_NAME: ALBANY-SCHENECTADY, NY COMBINED STATISTICAL AREA
+                              DPBC: '01'
+                              PERCENT_GEOCODE: '0.0'
+                              LASTLINE_SHORT: TROY, NY12180-8371
+                              PLACE: '0'
+                              CITY_SHORT: TROY
+                              NAME_SHORT: GLOBAL
+                              ZIP9: '121808371'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: RS8A
+                              ZIP10: 12180-8371
+                              CBSA_NAME: ALBANY-SCHENECTADY-TROY, NY METROPOLITAN STATISTICAL AREA
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-LI-1016)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+  /li/v1/oas/verify:
+    post:
+      tags:
+        - Geo Addressing
+      summary: Address Verify API
+      description: |
+        # Overview
+
+        This API performs address verification and standardization using the specified processing engine. Options are available to control matching and geocoding criteria, return values and other preferences. This API supports Global Coverage. This API Eliminate errors in address data and improves customer experience. The Address Verify API makes communication easier, faster and effortless by enriching customer details, keeping it up-to-date and maintaining its accuracy and consistency. It eliminates redundancy in reaching out to customers and makes it easy for distinct functional areas to work seamlessly in improving customer relationship.
+
+        The following table lists the Request Body Parameters
+
+        | Parameter               | Description                                                                                         |
+        |-------------------------|-----------------------------------------------------------------------------------------------------|
+        | type                    | Specifies whether to return all available information for each candidate.                         |
+        | fallbackToGeographic    | Specifies whether to attempt to determine a geographic region centroid when an address-level geocode cannot be determined.          |
+        | fallbackToPostal        | Specifies whether to attempt to determine a post code centroid when an address-level geocode cannot be determined.              |
+        | maxReturnedCandidates   | The maximum number of candidates to return. Optional. Must be an integer value. Default = 1       |
+        | clientCoordSysName      | Specifies the coordinate system that you want to convert the geometry to. The format must be the European Petroleum Survey Group (EPSG) code or the SRID code.|
+        | matchOnAddressNumber    | Specifies if a match must be made to the input address number.                                    |
+        | matchOnPostCode1        | Specifies if a match must be made to the input address number.                                    |
+        | matchOnAreaName         | Specifies if a match must be made to the input AreaName field.                                     |
+        | matchOnAllStreetFields  | Specifies if a match must be made to the input street name, type, and directional fields.         |
+        | returnAllCustomFields   | Specifies if only the standard set of fields for the candidate should be returned.                |
+        | returnMatchDescriptor   | Specifies if to return the match descriptor object, which indicates the parts of the candidate that matched the input address.|
+        | returnUnitInformation   | Specifies if to return unit type and unit value information separately in the unitType and unitValue fields, as well as in the formattedStreetAddress field.|
+
+        The Verify API also supports Custom Preferences. These preferences are for use with any country dataset.
+        For more details on thses preferences see <a href="https://docs.precisely.services/docs/sftw/ggs/Review/en-us/apis/webhelp/DISuite/GeoAddress/custom_preferences_verify_address_service.html">Custom Preferences</a>
+        ```
+      operationId: verify
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+            examples:
+              example:
+                value:
+                  preferences:
+                    maxResults: 1
+                    returnAllInfo: true
+                    factoryDescription:
+                      label: ''
+                      featureSpecific: {}
+                    clientLocale: ''
+                    clientCoordSysName: ''
+                    distance:
+                      value: 150
+                      distanceUnit: METER
+                    streetOffset:
+                      value: 7
+                      distanceUnit: METER
+                    cornerOffset:
+                      value: 7
+                      distanceUnit: METER
+                    fallbackToGeographic: false
+                    fallbackToPostal: false
+                    matchMode: ''
+                    returnOfAdditionalFields: false
+                    originXY: []
+                    customPreferences: {}
+                  addresses:
+                    - addressId: '1'
+                      addressLines:
+                        - '1700 District Ave #300 Burlington, MA'
+                      country: USA
+                      addressNumber: ''
+                      admin1: ''
+                      admin2: ''
+                      city: ''
+                      borough: ''
+                      neighborhood: ''
+                      suburb: ''
+                      postalCode: ''
+                      postalCodeExt: ''
+                      placeName: ''
+                      street: ''
+                      building: ''
+                      floor: ''
+                      room: ''
+                      unit: ''
+                      unitType: ''
+        required: true
+      responses:
+        '200':
+          description: Address verified Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - status: OK
+                        results:
+                          - score: 97
+                            address:
+                              formattedAddress: 1700 DISTRICT AVE STE 300, BURLINGTON MA 01803-5231, United States
+                              formattedStreetAddress: 1700 DISTRICT AVE STE 300
+                              formattedLocationAddress: BURLINGTON, MA  01803-5231
+                              addressNumber: '1700'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: Massachusetts
+                                shortName: MA
+                              admin2:
+                                longName: MIDDLESEX COUNTY
+                                shortName: MIDDLESEX COUNTY
+                              city:
+                                longName: BURLINGTON
+                                shortName: BURLINGTON
+                              postalCode: '01803'
+                              postalCodeExt: '5231'
+                              unit: '300'
+                              unitType: STE
+                              street: DISTRICT
+                            addressLines:
+                              - 1700 DISTRICT AVE STE 300
+                              - BURLINGTON MA 01803-5231
+                              - United States
+                            explanation:
+                              addressMatch:
+                                type: ADDRESS
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: EXACT
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '14677'
+                              CSA_NUMBER: '148'
+                              TYPE_SHORT: AVE
+                              THOROUGHFARE_TYPE: AVE
+                              HIUNIT: '300'
+                              PARCEN_ELEVATION_METERS: '44.2'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: S902
+                              RDI_RETCODE: 'N'
+                              COUNTY: '25017'
+                              PB_KEY: P0000BJ4F90Q
+                              LANGUAGE: en
+                              UNIT_TYPE: STE
+                              ADDRTYPE: M
+                              INC_IND: 'N'
+                              BLOCK_2010: '250173324002012'
+                              POINT_ID: '100893034'
+                              CHECK_DIGIT: '5'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '250173324011003'
+                              POST_THOROUGHFARE_TYPE: AVE
+                              QCITY: '250065000'
+                              ZIP_FACILITY: P
+                              TFID: '258319428'
+                              UNIT_RANGE_PARITY: E
+                              APN_ID: 048 46-51-0
+                              LOT_CODE: A
+                              LOT_NUM: '0212'
+                              CTYST_KEY: V21569
+                              UACEPOP: '4181019'
+                              NAME: DISTRICT
+                              ZIP_CARRTSORT: B
+                              PARENT_ID: P0000BJ68DL3
+                              LORANGE: '1700'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOUNIT: '300'
+                              LOC_CODE: AP05
+                              CART: C023
+                              NAME_CITY: BURLINGTON
+                              BLOCK_LEFT: '250173324011003'
+                              COUNTY_FIPS: '25017'
+                              HIRANGE: '1700'
+                              UACE: '09271'
+                              REC_TYPE: H
+                              HI_RISE_DFLT: 'N'
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              MATCH_TYPE: ADDRESS
+                              PARCEN_ELEVATION: '145'
+                              PREF_CITY: BURLINGTON
+                              CBSA_NUMBER: '14460'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1700 DISTRICT AVE STE 300
+                              LOTSIZE: '157983'
+                              CONFIDENCE: '89'
+                              HIZIP4: '5231'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: R
+                              CBSA_DIVISION_NAME: CAMBRIDGE-NEWTON-FRAMINGHAM, MA METROPOLITAN DIVISION
+                              LOZIP4: '5231'
+                              CSA_NAME: BOSTON-WORCESTER-PROVIDENCE, MA-RI-NH-CT COMBINED STATISTICAL AREA
+                              DPBC: '75'
+                              LASTLINE_SHORT: BURLINGTON, MA  01803-5231
+                              PLACE: '2509875'
+                              CITY_SHORT: BURLINGTON
+                              NAME_SHORT: DISTRICT
+                              ZIP9: '018035231'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8HPNTSC-A
+                              ZIP10: 01803-5231
+                              CBSA_NAME: BOSTON-CAMBRIDGE-NEWTON, MA-NH METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: E
+                              CBSA_DIVISION_NUMBER: '15764'
+        '206':
+          description: Address verified Partially
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - errorMessage: Not able to identify ABC country
+                        status: INVALID_REQUEST
+                      - status: OK
+                        results:
+                          - score: 97
+                            address:
+                              formattedAddress: 1700 DISTRICT AVE STE 300, BURLINGTON MA 01803-5231, United States
+                              formattedStreetAddress: 1700 DISTRICT AVE STE 300
+                              formattedLocationAddress: BURLINGTON, MA01803-5231
+                              addressNumber: '1700'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: Massachusetts
+                                shortName: MA
+                              admin2:
+                                longName: MIDDLESEX COUNTY
+                                shortName: MIDDLESEX COUNTY
+                              city:
+                                longName: BURLINGTON
+                                shortName: BURLINGTON
+                              postalCode: '01803'
+                              postalCodeExt: '5231'
+                              unit: '300'
+                              unitType: STE
+                              street: DISTRICT
+                            addressLines:
+                              - 1700 DISTRICT AVE STE 300
+                              - BURLINGTON MA 01803-5231
+                              - United States
+                            explanation:
+                              addressMatch:
+                                type: ADDRESS
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: EXACT
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '14677'
+                              CSA_NUMBER: '148'
+                              TYPE_SHORT: AVE
+                              THOROUGHFARE_TYPE: AVE
+                              HIUNIT: '300'
+                              PARCEN_ELEVATION_METERS: '44.2'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: S902
+                              RDI_RETCODE: 'N'
+                              COUNTY: '25017'
+                              PB_KEY: P0000BJ4F90Q
+                              LANGUAGE: en
+                              UNIT_TYPE: STE
+                              ADDRTYPE: M
+                              INC_IND: 'N'
+                              BLOCK_2010: '250173324002012'
+                              POINT_ID: '100893034'
+                              CHECK_DIGIT: '5'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '250173324011003'
+                              POST_THOROUGHFARE_TYPE: AVE
+                              QCITY: '250065000'
+                              ZIP_FACILITY: P
+                              TFID: '258319428'
+                              UNIT_RANGE_PARITY: E
+                              APN_ID: 048 46-51-0
+                              LOT_CODE: A
+                              LOT_NUM: '0212'
+                              CTYST_KEY: V21569
+                              UACEPOP: '4181019'
+                              NAME: DISTRICT
+                              ZIP_CARRTSORT: B
+                              PARENT_ID: P0000BJ68DL3
+                              LORANGE: '1700'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOUNIT: '300'
+                              LOC_CODE: AP05
+                              CART: C023
+                              NAME_CITY: BURLINGTON
+                              BLOCK_LEFT: '250173324011003'
+                              COUNTY_FIPS: '25017'
+                              HIRANGE: '1700'
+                              UACE: '09271'
+                              REC_TYPE: H
+                              HI_RISE_DFLT: 'N'
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              MATCH_TYPE: ADDRESS
+                              PARCEN_ELEVATION: '145'
+                              PREF_CITY: BURLINGTON
+                              CBSA_NUMBER: '14460'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1700 DISTRICT AVE STE 300
+                              LOTSIZE: '157983'
+                              CONFIDENCE: '89'
+                              HIZIP4: '5231'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: R
+                              CBSA_DIVISION_NAME: CAMBRIDGE-NEWTON-FRAMINGHAM, MA METROPOLITAN DIVISION
+                              LOZIP4: '5231'
+                              CSA_NAME: BOSTON-WORCESTER-PROVIDENCE, MA-RI-NH-CT COMBINED STATISTICAL AREA
+                              DPBC: '75'
+                              LASTLINE_SHORT: BURLINGTON, MA01803-5231
+                              PLACE: '2509875'
+                              CITY_SHORT: BURLINGTON
+                              NAME_SHORT: DISTRICT
+                              ZIP9: '018035231'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8HPNTSC-A
+                              ZIP10: 01803-5231
+                              CBSA_NAME: BOSTON-CAMBRIDGE-NEWTON, MA-NH METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: E
+                              CBSA_DIVISION_NUMBER: '15764'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-LI-1016)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+  /v1/autocomplete/postal-city:
+    post:
+      tags:
+        - Geo Addressing
+      summary: Address Autocomplete Postal-City API
+      description: |
+        The Autocomplete Postal-City API provides intelligent suggestions for postal codes and city names based on partial input provided by the user. It is designed to enhance user experience in various applications that involve postal codes and city selection.
+
+        The API suggestions can be controlled by the `type` field which determines whether the suggestions should be based on only postal code or only city or mix of postal code and city.
+
+        This is an optional field. If it is not provided then the suggestions will be mix of postal code and city based.
+
+        It can have 2 values:
+        - `POSTAL` : Suggestions will be based on postal codes only.
+
+        - `CITY` : Suggestions will be based on city only.
+      operationId: autocompletePostalCity
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+        - name: X-Transaction-Id
+          in: header
+          description: |
+            By utilizing the X-Transaction-Id, you can logically group multiple related requests together, ensuring they are treated as a single unit of work from our perspective. This means that you won't be charged separately for each request within the same transaction. Instead, you will be billed for the entire transaction as a whole.
+
+            Using the X-Transaction-Id is straightforward; simply include it in the header of your initial request to begin a new transaction. Then, include the same transaction id in subsequent requests that are part of that transaction.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutocompletePostalCityRequest'
+            examples:
+              example:
+                value:
+                  preferences:
+                    maxResults: 10
+                    returnAllInfo: true
+                    factoryDescription:
+                      label: ''
+                      featureSpecific: {}
+                    clientLocale: ''
+                    clientCoordSysName: ''
+                    distance:
+                      value: 150
+                      distanceUnit: METER
+                    streetOffset:
+                      value: 7
+                      distanceUnit: METER
+                    cornerOffset:
+                      value: 7
+                      distanceUnit: METER
+                    fallbackToGeographic: false
+                    fallbackToPostal: false
+                    matchMode: ''
+                    returnOfAdditionalFields: false
+                    originXY: []
+                    customPreferences: {}
+                  address:
+                    type: POSTAL
+                    postAddress: '12180'
+                    country: USA
+        required: true
+      responses:
+        '200':
+          description: Address autocompleted Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutocompletePostalCityResponse'
+              examples:
+                example:
+                  value:
+                    response:
+                      status: OK
+                      predictions:
+                        - address:
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: NY
+                              shortName: NY
+                            admin2:
+                              longName: Rensselaer
+                              shortName: Rensselaer
+                            city:
+                              longName: Troy
+                              shortName: Troy
+                            postalCode: '12180'
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -73.66133
+                                  - 42.73208
+                        - address:
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: NY
+                              shortName: NY
+                            admin2:
+                              longName: Rensselaer
+                              shortName: Rensselaer
+                            city:
+                              longName: Brunswick
+                              shortName: Brunswick
+                            postalCode: '12180'
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -73.66133
+                                  - 42.73208
+                        - address:
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: NY
+                              shortName: NY
+                            admin2:
+                              longName: Rensselaer
+                              shortName: Rensselaer
+                            city:
+                              longName: Wynantskill
+                              shortName: Wynantskill
+                            postalCode: '12180'
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -73.66133
+                                  - 42.73208
+                        - address:
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: NY
+                              shortName: NY
+                            admin2:
+                              longName: Rensselaer
+                              shortName: Rensselaer
+                            city:
+                              longName: North Greenbush
+                              shortName: North Greenbush
+                            postalCode: '12180'
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -73.66133
+                                  - 42.73208
+                        - address:
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: NY
+                              shortName: NY
+                            admin2:
+                              longName: Rensselaer
+                              shortName: Rensselaer
+                            city:
+                              longName: Grafton
+                              shortName: Grafton
+                            postalCode: '12180'
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -73.66133
+                                  - 42.73208
+                        - address:
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: NY
+                              shortName: NY
+                            admin2:
+                              longName: Rensselaer
+                              shortName: Rensselaer
+                            city:
+                              longName: Pittstown
+                              shortName: Pittstown
+                            postalCode: '12180'
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -73.66133
+                                  - 42.73208
+                        - address:
+                            country:
+                              isoAlpha3Code: USA
+                            admin1:
+                              longName: NY
+                              shortName: NY
+                            admin2:
+                              longName: Rensselaer
+                              shortName: Rensselaer
+                            city:
+                              longName: Poestenkill
+                              shortName: Poestenkill
+                            postalCode: '12180'
+                          location:
+                            feature:
+                              type: Feature
+                              properties:
+                                crsName: epsg:4326
+                              geometry:
+                                type: Point
+                                coordinates:
+                                  - -73.66133
+                                  - 42.73208
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-LI-1016)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+  /v1/geocode/enhanced:
+    post:
+      tags:
+        - Geo Addressing
+      summary: Address Geocode Enhanced API
+      description: |
+        This API is designed to enhance the existing capabilities of the Geocode API by utilizing multiple iterations of geocoding to improve the accuracy of the results for a given address.
+        **There are two types of flows available, allowing users to either maximize the Number of Locations or maximize the High-Quality Locations. The desired flow can be controlled using the `flow-type` variable, which accepts one of the following two values :**
+
+        - `Enhanced-Match-Rate` : Maximize the Number of Locations
+
+        - `Enhanced-Match-Quality` : Maximize High-Quality Locations
+
+        **The following table lists the Request Body Parameters**
+
+        | Parameter               | Description                                                                                         |
+        |-------------------------|-----------------------------------------------------------------------------------------------------|
+        | type                    | Specifies whether to return all available information for each candidate.                         |
+        | fallbackToGeographic    | Specifies whether to attempt to determine a geographic region centroid when an address-level geocode cannot be determined.          |
+        | fallbackToPostal        | Specifies whether to attempt to determine a post code centroid when an address-level geocode cannot be determined.              |
+        | maxReturnedCandidates   | The maximum number of candidates to return. Optional. Must be an integer value. Default = 1       |
+        | clientCoordSysName      | Specifies the coordinate system that you want to convert the geometry to. The format must be the European Petroleum Survey Group (EPSG) code or the SRID code.|
+        | matchOnAddressNumber    | Specifies if a match must be made to the input address number.                                    |
+        | matchOnPostCode1        | Specifies if a match must be made to the input address number.                                    |
+        | matchOnAreaName         | Specifies if a match must be made to the input AreaName field.                                     |
+        | matchOnAllStreetFields  | Specifies if a match must be made to the input street name, type, and directional fields.         |
+        | returnAllCustomFields   | Specifies if only the standard set of fields for the candidate should be returned.                |
+        | returnMatchDescriptor   | Specifies if to return the match descriptor object, which indicates the parts of the candidate that matched the input address.|
+        | returnUnitInformation   | Specifies if to return unit type and unit value information separately in the unitType and unitValue fields, as well as in the formattedStreetAddress field.|
+
+
+        **Disclaimer:** *This API will have higher latency and will consume higher credits compared to the standard Geocode API*
+
+        ```
+      operationId: geocode_1
+      parameters:
+        - name: flow-type
+          in: query
+          description: A required field to allow users to specify their desired flow
+          required: true
+          schema:
+            type: string
+        - name: X-Request-Id
+          in: header
+          description: The X-Request-Id header is optional but incredibly useful for developers. It serves as a unique identifier for requests within our system. When you encounter any problems with your requests, providing us with the X-Request-Id will enable us to pinpoint the specific request in question without the need for extensive manual searching. This means faster and more efficient troubleshooting.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeocodeRequest'
+            examples:
+              example:
+                value:
+                  preferences:
+                    maxResults: 1
+                    returnAllInfo: true
+                    factoryDescription:
+                      label: ''
+                      featureSpecific: {}
+                    clientLocale: ''
+                    clientCoordSysName: ''
+                    distance:
+                      value: 150
+                      distanceUnit: METER
+                    streetOffset:
+                      value: 7
+                      distanceUnit: METER
+                    cornerOffset:
+                      value: 7
+                      distanceUnit: METER
+                    fallbackToGeographic: false
+                    fallbackToPostal: false
+                    matchMode: ''
+                    returnOfAdditionalFields: false
+                    originXY: []
+                    customPreferences: {}
+                  addresses:
+                    - addressId: '1'
+                      addressLines:
+                        - '1700 District Ave #300 Burlington, MA'
+                      country: USA
+                      addressNumber: ''
+                      admin1: ''
+                      admin2: ''
+                      city: ''
+                      borough: ''
+                      neighborhood: ''
+                      suburb: ''
+                      postalCode: ''
+                      postalCodeExt: ''
+                      placeName: ''
+                      street: ''
+                      building: ''
+                      floor: ''
+                      room: ''
+                      unit: ''
+                      unitType: ''
+        required: true
+      responses:
+        '200':
+          description: Address geocode_1d Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeocodeResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - status: OK
+                        results:
+                          - score: 97
+                            address:
+                              formattedAddress: 1700 DISTRICT AVE STE 300, BURLINGTON MA 01803-5231, United States
+                              formattedStreetAddress: 1700 DISTRICT AVE STE 300
+                              formattedLocationAddress: BURLINGTON, MA  01803-5231
+                              addressNumber: '1700'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: Massachusetts
+                                shortName: MA
+                              admin2:
+                                longName: MIDDLESEX COUNTY
+                                shortName: MIDDLESEX COUNTY
+                              city:
+                                longName: BURLINGTON
+                                shortName: BURLINGTON
+                              postalCode: '01803'
+                              postalCodeExt: '5231'
+                              unit: '300'
+                              unitType: STE
+                              street: DISTRICT
+                            addressLines:
+                              - 1700 DISTRICT AVE STE 300
+                              - BURLINGTON MA 01803-5231
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -71.207799
+                                    - 42.483939
+                            explanation:
+                              addressMatch:
+                                type: ADDRESS
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: EXACT
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '14677'
+                              CSA_NUMBER: '148'
+                              TYPE_SHORT: AVE
+                              THOROUGHFARE_TYPE: AVE
+                              HIUNIT: '300'
+                              PARCEN_ELEVATION_METERS: '44.2'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: S902
+                              RDI_RETCODE: 'N'
+                              COUNTY: '25017'
+                              PB_KEY: P0000BJ4F90Q
+                              LANGUAGE: en
+                              UNIT_TYPE: STE
+                              ADDRTYPE: M
+                              INC_IND: 'N'
+                              BLOCK_2010: '250173324002012'
+                              POINT_ID: '100893034'
+                              CHECK_DIGIT: '5'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '250173324011003'
+                              POST_THOROUGHFARE_TYPE: AVE
+                              QCITY: '250065000'
+                              ZIP_FACILITY: P
+                              TFID: '258319428'
+                              UNIT_RANGE_PARITY: E
+                              APN_ID: 048 46-51-0
+                              LOT_CODE: A
+                              LOT_NUM: '0212'
+                              GEOHASH: drt3etunfh0x
+                              CTYST_KEY: V21569
+                              UACEPOP: '4181019'
+                              NAME: DISTRICT
+                              ZIP_CARRTSORT: B
+                              PARENT_ID: P0000BJ68DL3
+                              LORANGE: '1700'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOUNIT: '300'
+                              LOC_CODE: AP05
+                              CART: C023
+                              NAME_CITY: BURLINGTON
+                              BLOCK_LEFT: '250173324011003'
+                              COUNTY_FIPS: '25017'
+                              HIRANGE: '1700'
+                              UACE: '09271'
+                              REC_TYPE: H
+                              HI_RISE_DFLT: 'N'
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              MATCH_TYPE: ADDRESS
+                              PARCEN_ELEVATION: '145'
+                              PREF_CITY: BURLINGTON
+                              CBSA_NUMBER: '14460'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1700 DISTRICT AVE STE 300
+                              LOTSIZE: '157983'
+                              CONFIDENCE: '89'
+                              HIZIP4: '5231'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: R
+                              CBSA_DIVISION_NAME: CAMBRIDGE-NEWTON-FRAMINGHAM, MA METROPOLITAN DIVISION
+                              LOZIP4: '5231'
+                              CSA_NAME: BOSTON-WORCESTER-PROVIDENCE, MA-RI-NH-CT COMBINED STATISTICAL AREA
+                              DPBC: '75'
+                              LASTLINE_SHORT: BURLINGTON, MA  01803-5231
+                              PLACE: '2509875'
+                              CITY_SHORT: BURLINGTON
+                              NAME_SHORT: DISTRICT
+                              ZIP9: '018035231'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8HPNTSC-A
+                              ZIP10: 01803-5231
+                              CBSA_NAME: BOSTON-CAMBRIDGE-NEWTON, MA-NH METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: E
+                              CBSA_DIVISION_NUMBER: '15764'
+        '206':
+          description: Address geocode_1d Partially
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeocodeResponse'
+              examples:
+                example:
+                  value:
+                    responses:
+                      - errorMessage: Not able to identify ABC country
+                        status: INVALID_REQUEST
+                      - status: OK
+                        results:
+                          - score: 97
+                            address:
+                              formattedAddress: 1700 DISTRICT AVE STE 300, BURLINGTON MA 01803-5231, United States
+                              formattedStreetAddress: 1700 DISTRICT AVE STE 300
+                              formattedLocationAddress: BURLINGTON, MA01803-5231
+                              addressNumber: '1700'
+                              country:
+                                name: United States
+                                isoAlpha2Code: US
+                                isoAlpha3Code: USA
+                                isoNumericCode: '840'
+                              admin1:
+                                longName: Massachusetts
+                                shortName: MA
+                              admin2:
+                                longName: MIDDLESEX COUNTY
+                                shortName: MIDDLESEX COUNTY
+                              city:
+                                longName: BURLINGTON
+                                shortName: BURLINGTON
+                              postalCode: '01803'
+                              postalCodeExt: '5231'
+                              unit: '300'
+                              unitType: STE
+                              street: DISTRICT
+                            addressLines:
+                              - 1700 DISTRICT AVE STE 300
+                              - BURLINGTON MA 01803-5231
+                              - United States
+                            location:
+                              explanation:
+                                type: ADDRESS_POINT
+                                description: BUILDING
+                                designation: CENTROID
+                              feature:
+                                type: Feature
+                                properties:
+                                  crsName: epsg:4326
+                                geometry:
+                                  type: Point
+                                  coordinates:
+                                    - -71.207799
+                                    - 42.483939
+                            explanation:
+                              addressMatch:
+                                type: ADDRESS
+                                description:
+                                  - label: placeName
+                                    matchType: NONE
+                                  - label: addressNumber
+                                    matchType: EXACT
+                                  - label: admin1
+                                    matchType: EXACT
+                                  - label: admin2
+                                    matchType: NONE
+                                  - label: city
+                                    matchType: EXACT
+                                  - label: neighborhood
+                                    matchType: NONE
+                                  - label: suburb
+                                    matchType: NONE
+                                  - label: street
+                                    matchType: EXACT
+                                  - label: postalCode
+                                    matchType: NONE
+                                  - label: streetType
+                                    matchType: EXACT
+                                  - label: postalCodeExt
+                                    matchType: NONE
+                                  - label: streetDirectional
+                                    matchType: EXACT
+                              source:
+                                label: ggs
+                            customFields:
+                              RESBUS: B
+                              LOTSIZE_METERS: '14677'
+                              CSA_NUMBER: '148'
+                              TYPE_SHORT: AVE
+                              THOROUGHFARE_TYPE: AVE
+                              HIUNIT: '300'
+                              PARCEN_ELEVATION_METERS: '44.2'
+                              ROAD_CLASS: '01'
+                              MATCH_CODE: S902
+                              RDI_RETCODE: 'N'
+                              COUNTY: '25017'
+                              PB_KEY: P0000BJ4F90Q
+                              LANGUAGE: en
+                              UNIT_TYPE: STE
+                              ADDRTYPE: M
+                              INC_IND: 'N'
+                              BLOCK_2010: '250173324002012'
+                              POINT_ID: '100893034'
+                              CHECK_DIGIT: '5'
+                              METRO_FLAG: 'Y'
+                              BLOCK: '250173324011003'
+                              POST_THOROUGHFARE_TYPE: AVE
+                              QCITY: '250065000'
+                              ZIP_FACILITY: P
+                              TFID: '258319428'
+                              UNIT_RANGE_PARITY: E
+                              APN_ID: 048 46-51-0
+                              LOT_CODE: A
+                              LOT_NUM: '0212'
+                              GEOHASH: drt3etunfh0x
+                              CTYST_KEY: V21569
+                              UACEPOP: '4181019'
+                              NAME: DISTRICT
+                              ZIP_CARRTSORT: B
+                              PARENT_ID: P0000BJ68DL3
+                              LORANGE: '1700'
+                              CLOSE_MATCH: T
+                              STREET_SIDE: L
+                              DATATYPE: '12'
+                              INTERSECTION: F
+                              ZIP_CITY_DELV: 'Y'
+                              LOUNIT: '300'
+                              LOC_CODE: AP05
+                              CART: C023
+                              NAME_CITY: BURLINGTON
+                              BLOCK_LEFT: '250173324011003'
+                              COUNTY_FIPS: '25017'
+                              HIRANGE: '1700'
+                              UACE: '09271'
+                              REC_TYPE: H
+                              HI_RISE_DFLT: 'N'
+                              URBANICITY: L
+                              RESOLVED_LINE: '0'
+                              MATCH_TYPE: ADDRESS
+                              PARCEN_ELEVATION: '145'
+                              PREF_CITY: BURLINGTON
+                              CBSA_NUMBER: '14460'
+                              ALT_FLAG: B
+                              SEGMENT_DIRECTION: F
+                              ADDRLINE_SHORT: 1700 DISTRICT AVE STE 300
+                              LOTSIZE: '157983'
+                              CONFIDENCE: '89'
+                              HIZIP4: '5231'
+                              DATATYPE_NAME: MASTER LOCATION
+                              SEGMENT_PARITY: R
+                              CBSA_DIVISION_NAME: CAMBRIDGE-NEWTON-FRAMINGHAM, MA METROPOLITAN DIVISION
+                              LOZIP4: '5231'
+                              CSA_NAME: BOSTON-WORCESTER-PROVIDENCE, MA-RI-NH-CT COMBINED STATISTICAL AREA
+                              DPBC: '75'
+                              LASTLINE_SHORT: BURLINGTON, MA01803-5231
+                              PLACE: '2509875'
+                              CITY_SHORT: BURLINGTON
+                              NAME_SHORT: DISTRICT
+                              ZIP9: '018035231'
+                              IS_ALIAS: N01
+                              PRECISION_CODE: S8HPNTSC-A
+                              ZIP10: 01803-5231
+                              CBSA_NAME: BOSTON-CAMBRIDGE-NEWTON, MA-NH METROPOLITAN STATISTICAL AREA
+                              RANGE_PARITY: E
+                              CBSA_DIVISION_NUMBER: '15764'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Not able to identify ABC country (DIS-LI-1016)
+        '401':
+          description: 'Unauthorized: Invalid token'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    AddressMatch:
+      type: object
+      properties:
+        description:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatchDescription'
+        type:
+          $ref: '#/components/schemas/MatchType'
+    AdminField:
+      type: object
+      properties:
+        longName:
+          type: string
+          description: "String\t\"New York\" or \"Maharashtra\""
+        shortName:
+          type: string
+          description: "String\t\"NY\""
+      description: 'Specifies the geographic area like: admin1, admin2, city, neighborhood, suburb, borough.'
+    AutocompletePostalCityAddress:
+      required:
+        - country
+      type: object
+      properties:
+        type:
+          type: string
+          description: Defines the output as either POSTAL or CITY, tailored for postal or city-oriented results
+        postAddress:
+          type: string
+          description: Specifies a city or postal code
+        country:
+          type: string
+          description: Name of country in ISO 3166-1 Alpha-2 or Alpha-3 format, or a common name of the country, such as United States of America
+      description: Displays the components of the address
+    AutocompletePostalCityPredictionResponse:
+      required:
+        - predictions
+        - status
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        errorMessage:
+          type: string
+          description: Error message from the underlying service
+        predictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutocompletePostalCityPredictionResult'
+      description: Prediction response for postal-city request
+    AutocompletePostalCityPredictionResult:
+      required:
+        - address
+        - location
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/AutocompletePostalCityResponseAddress'
+        location:
+          $ref: '#/components/schemas/Location'
+      description: List of prediction results
+    AutocompletePostalCityRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseRequest'
+        - required:
+            - address
+          type: object
+          properties:
+            address:
+              $ref: '#/components/schemas/AutocompletePostalCityAddress'
+    AutocompletePostalCityResponse:
+      required:
+        - response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/AutocompletePostalCityPredictionResponse'
+    AutocompletePostalCityResponseAddress:
+      required:
+        - admin1
+        - admin2
+        - city
+        - country
+      type: object
+      properties:
+        country:
+          $ref: '#/components/schemas/CountryField'
+        admin1:
+          $ref: '#/components/schemas/AdminField'
+        admin2:
+          $ref: '#/components/schemas/AdminField'
+        city:
+          $ref: '#/components/schemas/AdminField'
+        postalCode:
+          type: string
+          description: Postal code
+      description: Displays the components of the address
+    AutocompleteRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseRequest'
+        - required:
+            - address
+          type: object
+          properties:
+            address:
+              $ref: '#/components/schemas/RequestAddress'
+    AutocompleteResponse:
+      required:
+        - response
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/PredictionResponse'
+    BaseRequest:
+      type: object
+      properties:
+        preferences:
+          $ref: '#/components/schemas/Preferences'
+    CountryField:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Common name of the country
+        isoAlpha2Code:
+          type: string
+          description: Alphabetic code (alpha-2) like "US"
+        isoAlpha3Code:
+          type: string
+          description: Alphabetic code (alpha-3) like "USA"
+        isoNumericCode:
+          type: string
+          description: Numeric code (numeric-3) like "840"
+      description: Values are based on the ISO 3166-1 standard for country codes (returned in alpha-2, alpha-3, or numeric format)
+    Distance:
+      type: object
+      properties:
+        value:
+          type: number
+          description: Distance of the radius in which to search for a match. Default is 5.
+          format: double
+        distanceUnit:
+          $ref: '#/components/schemas/DistanceUnit'
+      description: '''distance'' displays the defined search radius (default is 5 meters). ''streetOffset'' specifies the offset distance from the street segments to use in street-level geocoding. ''cornerOffset'' specifies the distance to offset the street end points in street-level matching (default is 7 meters).'
+    DistanceUnit:
+      type: string
+      enum:
+        - FOOT
+        - METER
+        - MILE
+        - KILOMETER
+    ErrorDetail:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the response
+        errorMessage:
+          type: string
+          description: Error message from the underlying service
+        addressId:
+          type: string
+          description: Address Id of the response
+      description: Details of Error
+    ErrorResponse:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    Explanation:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: An ID generated from the underlying source reference data of an address.
+        addressMatch:
+          allOf:
+            - $ref: '#/components/schemas/AddressMatch'
+            - type: object
+              description: Describes the quality of address matching based on the user input address
+        source:
+          type: object
+          additionalProperties:
+            type: string
+          description: Returns information about the address processor.
+      description: Describes the level of matching for each component of an address
+    FactoryDescription:
+      type: object
+      properties:
+        label:
+          type: string
+          description: Sets the addressing processor based on the configured data. Labels are case-sensitive and must be lowercase. Default is "".
+        featureSpecific:
+          type: object
+          additionalProperties:
+            type: string
+          description: Ability to map a feature to an address processor, based on specified label.
+      description: Controls which address processor will process the request.
+    GeocodeRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseRequest'
+        - required:
+            - addresses
+          type: object
+          properties:
+            addresses:
+              minItems: 1
+              type: array
+              items:
+                $ref: '#/components/schemas/RequestAddressWithId'
+    GeocodeResponse:
+      type: object
+      properties:
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Response'
+    Geometry:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Geometry type. The return value is always Point
+        coordinates:
+          type: array
+          description: Coordinates as x (longitude) and y (latitude) separated by a comma
+          items:
+            type: number
+            format: double
+        foreignMembers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Foreign Members
+      description: Provides the candidate's geometry
+    Locale:
+      title: Locale
+      required:
+        - country
+        - language
+        - variant
+      type: object
+      properties:
+        language:
+          type: string
+        script:
+          type: string
+        country:
+          type: string
+        variant:
+          type: string
+        extensionKeys:
+          type: array
+          items:
+            type: string
+        unicodeLocaleAttributes:
+          type: array
+          items:
+            type: string
+        unicodeLocaleKeys:
+          type: array
+          items:
+            type: string
+        ISO3Language:
+          type: string
+        ISO3Country:
+          type: string
+        displayLanguage:
+          type: string
+        displayScript:
+          type: string
+        displayCountry:
+          type: string
+        displayVariant:
+          type: string
+        displayName:
+          type: string
+      description: Specifies the locale value. For example, specify "th" for the Thai language.
+    Location:
+      type: object
+      properties:
+        explanation:
+          $ref: '#/components/schemas/LocationExplanation'
+        feature:
+          $ref: '#/components/schemas/SimpleFeature'
+      description: Describes the location type and coordinates
+    LocationDescriptionTypes:
+      type: string
+      enum:
+        - POSTAL_BUILDING
+        - INTERSECTION
+        - STREET_BLOCK
+        - PO_BOX
+        - PO_BLOCK
+        - BUILDING
+        - PROJECTED_POINT
+        - POSTAL_CODE
+        - POSTAL_CODE_EXT
+        - POINT_OF_INTEREST
+        - PARCEL
+        - FRONT_DOOR
+        - DRIVEWAY
+        - STREET_ACCESS_POINT
+        - PARCEL_POINT
+        - BACKFILL_POINT
+        - VIRTUAL_POINT
+        - DOOR
+        - ROOM
+        - BACK_DOOR
+        - BUILDING_ENTRANCE
+        - EAST_SIDE_DOOR
+        - WEST_SIDE_DOOR
+        - SOUTH_SIDE_DOOR
+        - NORTH_SIDE_DOOR
+        - ENTRANCE
+        - IOT_DEVICE
+    LocationDesignationTypes:
+      type: string
+      enum:
+        - CENTROID
+        - CENTER_LINE_PROJECTED
+        - MODIFIED_SEGMENT_WITH_POINT
+        - CALCULATED_WITH_PARCEL_AND_CENTERLINE
+        - RELATIVE_TO_STREET
+        - RELATIVE_TO_MULTI_PARCEL
+        - RELATIVE_TO_PARCEL_AND_STREET_CENTER
+        - CALCULATED_WITH_STREET_SEGMENTS
+        - INTERPOLATED_INTERSECTION
+        - MIDPOINT_BETWEEN_RANGE
+        - MULTIPLE_USPS_SEGMENTS
+        - SEGMENT_WITHOUT_SHAPE
+        - CALCULATED_WITH_USER_DATA
+        - CALCULATED_WITH_POINT_AND_STREET
+        - CALCULATED_WITH_TWO_STREET_SEGMENTS
+    LocationDetail:
+      required:
+        - country
+        - latitude
+        - longitude
+      type: object
+      properties:
+        addressId:
+          type: string
+          description: Address Id for the request
+        longitude:
+          type: number
+          description: longitude (x)
+          format: double
+        latitude:
+          type: number
+          description: latitude (y)
+          format: double
+        country:
+          type: string
+          description: Name of country in ISO 3166-1 Alpha-2 or Alpha-3 format, or a common name of the country, such as United States of America
+      description: List of object contains country and coordinates
+    LocationExplanation:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/LocationType'
+        description:
+          $ref: '#/components/schemas/LocationDescriptionTypes'
+        designation:
+          $ref: '#/components/schemas/LocationDesignationTypes'
+        additionalMetadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Any additional metadata about the location
+      description: Provides location quality and precision
+    LocationType:
+      type: string
+      enum:
+        - ADDRESS_POINT
+        - INTERSECTION
+        - ADDRESS_INTERPOLATED
+        - NEAR_BY_ADDRESS
+        - STREET
+        - STREET_CENTER
+        - STREET_BLOCK
+        - POSTAL
+        - POSTAL_CENTROID
+        - SUB_TOWN_CENTROID
+        - TOWN_CENTROID
+        - ADMIN1
+        - ADMIN1_CENTROID
+        - ADMIN2
+        - ADMIN2_CENTROID
+        - CITY
+        - NEIGHBORHOOD
+        - SUBURB
+        - COUNTRY
+        - UNKNOWN
+        - NO_LOCATION
+        - POI
+        - POSTAL_BUILDING
+        - PO_BOX
+    LookupRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseRequest'
+        - required:
+            - keys
+          type: object
+          properties:
+            keys:
+              minItems: 1
+              type: array
+              items:
+                $ref: '#/components/schemas/LookupSingleRequest'
+    LookupResponse:
+      required:
+        - responses
+      type: object
+      properties:
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Response'
+    LookupSingleRequest:
+      required:
+        - country
+        - key
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: |-
+            LookupType controls what type of information will be requested. For example,
+
+            "PB_KEY" for USA data
+            "GNAF_PID for AUS G-NAF data
+        country:
+          type: string
+          description: Name of country in ISO 3166-1 Alpha-2 or Alpha-3 format, or a common name of the country, such as United States of America
+        key:
+          type: string
+          description: Value for the given Key such as “P00003PZZOIE”
+      description: LookupSingleRequest to be processed
+    MatchDescription:
+      type: object
+      properties:
+        label:
+          type: string
+          description: For example "streetName"
+        matchType:
+          type: string
+          description: EXACT, PARTIAL, ALIAS_EXACT, ALIAS_PARTIAL, ADDED, REMOVED, NONE
+        returnType:
+          type: string
+          description: INPUT, PREFERRED, ALIAS, PARTIAL, NONE
+        matchedSubstring:
+          type: string
+          description: For the Predict service, returns the portion of the input that matched against the output.
+      description: Indicates the level of matching
+    MatchType:
+      type: string
+      enum:
+        - ADDRESS
+        - STREET
+        - ADMIN
+        - POBOX
+        - POI
+        - NOMATCH
+    PredictionResponse:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          description: Error message from the underlying service
+        status:
+          $ref: '#/components/schemas/Status'
+        predictions:
+          type: array
+          description: List of prediction results
+          items:
+            $ref: '#/components/schemas/PredictionResult'
+      description: Prediction response for request
+    PredictionResult:
+      type: object
+      properties:
+        prediction:
+          type: string
+          description: All components of the address, formatted to the country's standard, on one line
+        distance:
+          $ref: '#/components/schemas/Distance'
+      description: Prediction Results processed for request
+      allOf:
+        - $ref: '#/components/schemas/Result'
+    Preferences:
+      type: object
+      properties:
+        maxResults:
+          type: integer
+          description: The maximum number of candidates to return. Default = 1.
+          format: int32
+        returnAllInfo:
+          type: boolean
+          description: Specifies whether to return all available information for each candidate.
+        factoryDescription:
+          $ref: '#/components/schemas/FactoryDescription'
+        customPreferences:
+          type: object
+          additionalProperties:
+            type: string
+          description: For use against any country dataset, define custom preferences to control additional functionality such as matching criteria, address casing, and enable functionality like DPV and SuiteLink.
+        clientLocale:
+          allOf:
+            - $ref: '#/components/schemas/Locale'
+            - title: Locale
+              type: object
+              description: Specifies the locale value. For example, specify "th" for the Thai language.
+        clientCoordSysName:
+          type: string
+          description: Specifies the coordinate system that you want to convert the geometry to. The format must be the European Petroleum Survey Group (EPSG) code or the SRID code. Default = EPSG:4326.
+        distance:
+          $ref: '#/components/schemas/Distance'
+        streetOffset:
+          $ref: '#/components/schemas/Distance'
+        cornerOffset:
+          $ref: '#/components/schemas/Distance'
+        fallbackToGeographic:
+          type: boolean
+        fallbackToPostal:
+          type: boolean
+          description: Specifies whether to attempt to determine a post code centroid when an address-level geocode cannot be determined. Optional.
+        matchMode:
+          type: string
+          description: Match modes determine the leniency used to make a match between the input address and the reference data.
+        originXY:
+          type: array
+          description: XY coordinates of the origin address.
+          items:
+            type: number
+            format: double
+        returnOfAdditionalFields:
+          type: array
+          description: This lets the user control which additional fields they want to have returned if they do not want to return all info.
+          items:
+            type: string
+      description: Preferences that will processed with the request
+    RequestAddress:
+      required:
+        - country
+      type: object
+      properties:
+        city:
+          type: string
+          description: Specifies a city or town name.
+        street:
+          type: string
+          description: Street name only (no directional or street suffix).
+        admin2:
+          type: string
+          description: The secondary geographic area, typically a county or district.
+        placeName:
+          type: string
+          description: If applicable, indicates the name of the candidate's place or building.
+        addressNumber:
+          type: string
+          description: House or building number.
+        suburb:
+          type: string
+          description: Mixed-use or residential area within commuting distance of a city or urban area.
+        neighborhood:
+          type: string
+          description: A city subdivision or locality.
+        admin1:
+          type: string
+          description: The largest geographic area, typically a state or province.
+        postalCode:
+          type: string
+          description: Main postal code.
+        floor:
+          type: string
+          description: Each level within a building.
+        postalCodeExt:
+          type: string
+          description: Secondary postal code, if one exists. For example, in the US, a ZIP+4 is 80125-8012.
+        room:
+          type: string
+          description: A single room within a building.
+        borough:
+          type: string
+          description: Unit of local government or other administrative subdivision.
+        unit:
+          type: string
+          description: The unit number, such as "3B".
+        unitType:
+          type: string
+          description: A group or suite of rooms within a building that are under common ownership or tenancy, typically having a common entrance. (APT, STE, FLAT, etc.).
+        building:
+          type: string
+          description: A roofed and walled structure built for permanent use.
+        country:
+          type: string
+          description: Values are based on the ISO 3166-1 standard for country codes (returned in alpha-2, alpha-3, or numeric format).
+        addressLines:
+          type: array
+          description: Requested address, based on the country's addressing standard.
+          items:
+            type: string
+      description: Request address that will be processed
+    RequestAddressWithId:
+      type: object
+      properties:
+        addressId:
+          type: string
+          description: Address Id for the request
+      description: Addresses to be processed
+      allOf:
+        - $ref: '#/components/schemas/RequestAddress'
+    Response:
+      type: object
+      properties:
+        addressId:
+          type: string
+          description: Address Id of the response
+        errorMessage:
+          type: string
+          description: Error message from the underlying service
+        status:
+          $ref: '#/components/schemas/Status'
+        results:
+          type: array
+          description: List of results
+          items:
+            $ref: '#/components/schemas/Result'
+      description: Responses for address requests
+    ResponseAddress:
+      type: object
+      properties:
+        street:
+          type: string
+          description: Street name only (no directional or street suffix).
+        formattedAddress:
+          type: string
+          description: All components of the address, formatted to the country's standard, on one line.
+        formattedStreetAddress:
+          type: string
+          description: Street portion of the address, including the directional and street suffix, formatted to the country's standard.
+        formattedLocationAddress:
+          type: string
+          description: Location portion of the address, formatted to the country's standard.
+        addressNumber:
+          type: string
+          description: House or building number.
+        country:
+          $ref: '#/components/schemas/CountryField'
+        admin1:
+          $ref: '#/components/schemas/AdminField'
+        admin2:
+          $ref: '#/components/schemas/AdminField'
+        city:
+          $ref: '#/components/schemas/AdminField'
+        borough:
+          $ref: '#/components/schemas/AdminField'
+        neighborhood:
+          $ref: '#/components/schemas/AdminField'
+        suburb:
+          $ref: '#/components/schemas/AdminField'
+        postalCode:
+          type: string
+          description: Main postal code.
+        postalCodeExt:
+          type: string
+          description: Secondary postal code, if one exists. For example, in the US, a ZIP+4 is 80125-8012.
+        placeName:
+          type: string
+          description: If applicable, indicates the name of the candidate's place or building.
+        building:
+          type: string
+          description: A roofed and walled structure built for permanent use.
+        floor:
+          type: string
+          description: Each level within a building.
+        room:
+          type: string
+          description: A single room within a building.
+        unit:
+          type: string
+          description: The unit number, such as "3B".
+        unitType:
+          type: string
+          description: A group or suite of rooms within a building that are under common ownership or tenancy, typically having a common entrance. (APT, STE, FLAT, etc.).
+      description: Displays components of the address
+    Result:
+      type: object
+      properties:
+        score:
+          type: integer
+          description: Provides a number from 0-100 to indicate how much the input was changed in order to match to the output candidate.
+          format: int32
+        addressLines:
+          type: array
+          description: Displays multiple formatted lines to support the postal standard of a given country.
+          items:
+            type: string
+        explanation:
+          $ref: '#/components/schemas/Explanation'
+        address:
+          $ref: '#/components/schemas/ResponseAddress'
+        location:
+          $ref: '#/components/schemas/Location'
+        customFields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Returns additional information about the address.
+      description: Processed Result
+    ReverseGeocodeRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseRequest'
+        - required:
+            - locations
+          type: object
+          properties:
+            locations:
+              minItems: 1
+              type: array
+              items:
+                $ref: '#/components/schemas/LocationDetail'
+    ReverseGeocodeResponse:
+      required:
+        - responses
+      type: object
+      properties:
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Response'
+    SimpleFeature:
+      required:
+        - geometry
+      type: object
+      properties:
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: crsName - The coordinate reference system (CRS) used for the candidate's geocode. Expressed in epsg:nnnn format; the default is epsg:4326
+        type:
+          type: string
+          description: Feature
+      description: SimpleFeature object with geometry and additional properties
+    Status:
+      type: string
+      enum:
+        - OK
+        - ZERO_RESULTS
+        - UNKNOWN_ERROR
+        - INVALID_CONFIGURATION
+        - INVALID_REQUEST
+        - DATA_NOT_LICENSED
+        - REMOTE_EXCEPTION
+        - FATAL_EXCEPTION
+        - SERVICE_UNAVAILABLE
+        - INTERNAL_ERROR
+        - INVALID_CLIENT_INPUT
+        - INVALID_TOKEN
+        - BATCH_SIZE_EXCEEDED
+        - UNAUTHORIZED
+    VerifyRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseRequest'
+        - required:
+            - addresses
+          type: object
+          properties:
+            addresses:
+              minItems: 1
+              type: array
+              items:
+                $ref: '#/components/schemas/RequestAddressWithId'
+    VerifyResponse:
+      required:
+        - responses
+      type: object
+      properties:
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Response'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

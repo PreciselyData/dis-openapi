@@ -1,0 +1,384 @@
+openapi: 3.0.1
+info:
+  title: Name Parsing API
+  description: |-
+    Name Parsing API does the following:
+    - Determines the type of a name in order to describe the function that the name performs. Name entity types are divided into two major groups: personal names and business names. Within each of these major groups are subgroups.
+    - Determines the form of a name in order to understand which syntax the parser should follow for parsing. Personal names usually take on a natural (signature) order or a reverse order. Business names are usually ordered hierarchically.
+    - Determines and labels the component parts of a name so that the syntactical relationship of each name part to the entire name is identified. The personal name syntax includes prefixes, first, middle, and last name parts, suffixes, and account description terms, among other personal name parts. The business name syntax includes the firm name and suffix terms.
+    - Parses conjoined personal and business names and either retains them as one record or splits them into multiple records. Examples of conjoined names include "Mr. and Mrs. John Smith" and "Baltimore Gas & Electric dba Constellation Energy".
+    - Assigns a parsing score that reflects the degree of confidence that the parsing is correct.
+  version: '1.0'
+servers:
+  - url: https://dis-developer.api.cloud.precisely.com
+paths:
+  /v1/names/parse:
+    post:
+      tags:
+        - Parsing
+      summary: API to parse the personal and business names
+      description: |
+        # Overview
+
+
+        This endpoint will parse the personal and business names and other terms in the name data field into their component parts. These parsed name elements are then subsequently available to other automated operations such as name matching, name standardization, or multiple-record name consolidation.
+
+        This endpoint accept `JSON` as input and return `JSON` response. This means that you must usually add the following headers to your request:
+        ```
+        Content-type: application/json
+        Accept: application/json
+        ```
+
+
+        # Options
+
+
+        The following table lists the options that control the parsing of names. Options are required only if parsing results need to be changed according to the data.
+
+        <table>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>parseNaturalOrderPersonalNames</td>
+            <td>Specifies whether to parse names where the is in the order Title, First Name, Middle Name, Last Name, and Suffix.<br>The `true` value indicates whether to parse personal names that are in natural order. </br><br>Defaults to true.</br></td>
+        </tr>
+        <tr>
+            <td>parseReverseOrderPersonalNames</td>
+            <td>Specifies whether to parse names where the last name is specified first.<br> The `true` value indicates whether to parse personal names that are in reverse order. </br><br>Defaults to true.</br></td>
+        </tr>
+        <tr>
+            <td>parseConjoinedNames</td>
+            <td>Specifies whether to parse conjoined names or separate names containing more than one individual into multiple records, <br>for example, `Bill & Sally Smith`. The `true` value indicates whether to parse conjoined names. </br><br>Defaults to true.</br></td>
+        </tr>
+        <tr>
+            <td>parseBusinessNames</td>
+            <td>Specifies whether to parse business names. The `true` value indicates whether to parse business names.<br>Defaults to true.</br></td>
+        </tr>
+        </table>
+
+
+        # Trying the API
+
+
+        Following are some of the examples for using the API.
+        Note that you need to pass the credentials in order to access the API.
+
+
+        ### Parsing Personal Names:
+
+        Request:
+        ```
+        {
+            "name": "Mr. Josh Rogers "
+        }
+        ```
+        Response:
+        ```
+        {
+            "parsedAs": "Personal",
+            "firstName": "JOSH",
+            "isParsed": "true",
+            "lastName": "ROGERS",
+            "name": "Mr. Josh Rogers ",
+            "parsingScore": "100",
+            "titleOfRespect": "MR"
+        }
+        ```
+
+        ### Parsing Business Names:
+
+        Request:
+        ```
+        {
+            "name": "Precisely Holdings, LLC"
+        }
+        ```
+        Response:
+        ```
+        {
+            "parsedAs": "Firm",
+            "firmName": "PRECISELY HOLDINGS",
+            "firmSuffix": "LLC",
+            "isParsed": "true",
+            "name": "Precisely Holdings, LLC",
+            "parsingScore": "83"
+        }
+        ```
+
+        ### Parsing Co-joined Names:
+
+        Request:
+        ```
+        {
+            "name": "Mr. Jack Lauren & Daniel Smith"
+        }
+        ```
+        Response:
+        ```
+        {
+            "parsedAs": "Personal",
+            "firstName": "JACK",
+            "isParsed": "true",
+            "lastName": "LAUREN",
+            "name": "Mr. Jack Lauren & Daniel Smith",
+            "parsingScore": "100",
+            "titleOfRespect": "MR",
+            "conjunction2": "&",
+            "firstName2": "DANIEL",
+            "lastName2": "SMITH"
+        }
+        ```
+
+
+        ### Providing options according to the data:
+
+        If you want to change the default output of parsing, like in this example, if you want to disable
+        parsing of co-joined names, you can provide the options as follows:
+        Request:
+        ```
+        {
+            "name": "Mr. Jack Lauren & Daniel Smith",
+            "options": {
+                "parseConjoinedNames": false
+            }
+        }
+        ```
+        Response:
+        ```
+        {
+            "parsedAs": "Personal",
+            "firstName": "JACK",
+            "isParsed": "true",
+            "lastName": "LAUREN",
+            "name": "Mr. Jack Lauren & Daniel Smith",
+            "parsingScore": "75",
+            "titleOfRespect": "MR",
+            "trailingData": "& DANIEL SMITH"
+        }
+        ```
+      operationId: parseName
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputData'
+            examples:
+              withDefaultOptions:
+                value:
+                  name: Jack and Daniel Smith
+              withCustomOptions:
+                value:
+                  name: Precisely Holdings, LLC
+                  options:
+                    parseBusinessNames: true
+        required: true
+      responses:
+        '200':
+          description: Parsed Successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameParserResponse'
+              examples:
+                defaultOptionsOutput:
+                  value:
+                    parsedAs: Personal
+                    firstName: JACK
+                    isParsed: 'true'
+                    lastName: SMITH
+                    name: Jack and Daniel Smith
+                    parsingScore: '100'
+                    conjunction2: AND
+                    firstName2: DANIEL
+                customOptionsOutput:
+                  value:
+                    parsedAs: Firm
+                    firmName: PRECISELY HOLDINGS
+                    firmSuffix: LLC
+                    isParsed: 'true'
+                    name: Precisely Holdings, LLC
+                    parsingScore: '83'
+        '400':
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidRequest:
+                  value:
+                    errors:
+                      - status: INVALID_REQUEST
+                        errorMessage: Request is not valid (DIS-LI-1018)
+        '401':
+          description: Invalid Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidToken:
+                  value:
+                    errors:
+                      - status: INVALID_TOKEN
+                        errorMessage: Invalid token (DIS-LI-1013)
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalError:
+                  value:
+                    errors:
+                      - status: INTERNAL_ERROR
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    ErrorDetail:
+      type: object
+      properties:
+        status:
+          type: string
+        errorMessage:
+          type: string
+    ErrorResponse:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    InputData:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+        options:
+          $ref: '#/components/schemas/Options'
+    NameParserResponse:
+      required:
+        - isParsed
+        - name
+        - parsingScore
+      type: object
+      properties:
+        accountDescription:
+          type: string
+        names:
+          type: string
+        parsedAs:
+          type: string
+        firmConjunction:
+          type: string
+        firmName:
+          type: string
+        firmSuffix:
+          type: string
+        isFirm:
+          type: string
+        conjunction:
+          type: string
+        cultureCode:
+          type: string
+        cultureCodeUsedToParse:
+          type: string
+        firstName:
+          type: string
+        generalSuffix:
+          type: string
+        isParsed:
+          minLength: 1
+          type: string
+        isPersonal:
+          type: string
+        isReverseOrder:
+          type: string
+        lastName:
+          type: string
+        leadingData:
+          type: string
+        maturitySuffix:
+          type: string
+        middleName:
+          type: string
+        name:
+          minLength: 1
+          type: string
+        parsingScore:
+          minLength: 1
+          type: string
+        secondaryLastName:
+          type: string
+        titleOfRespect:
+          type: string
+        trailingData:
+          type: string
+        conjunction2:
+          type: string
+        conjunction3:
+          type: string
+        firmName2:
+          type: string
+        firmSuffix2:
+          type: string
+        firstName2:
+          type: string
+        firstName3:
+          type: string
+        generalSuffix2:
+          type: string
+        generalSuffix3:
+          type: string
+        isConjoined:
+          type: string
+        lastName2:
+          type: string
+        lastName3:
+          type: string
+        maturitySuffix2:
+          type: string
+        maturitySuffix3:
+          type: string
+        middleName2:
+          type: string
+        middleName3:
+          type: string
+        titleOfRespect2:
+          type: string
+        titleOfRespect3:
+          type: string
+    Options:
+      type: object
+      properties:
+        parseNaturalOrderPersonalNames:
+          type: boolean
+          description: Specifies whether to parse names where the name is in the order Title, First Name, Middle Name, Last Name, and Suffix
+          default: true
+        parseReverseOrderPersonalNames:
+          type: boolean
+          description: Specifies whether to parse names where the last name is specified first.
+          default: true
+        parseConjoinedNames:
+          type: boolean
+          description: Specifies whether to parse conjoined names or separate names containing more than one individual into multiple records, for example, Bill & Sally Smith
+          default: true
+        parseBusinessNames:
+          type: boolean
+          description: Specifies whether to parse business names.
+          default: true
+      description: Options are required only if parsing results need to be changed according to the data.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
