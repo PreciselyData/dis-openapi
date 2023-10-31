@@ -1,7 +1,35 @@
 openapi: 3.0.1
 info:
   title: Geo Addressing APIs
-  description: Precisely Data Integrity Suite offers different Geo Addressing services that can be used to convert physical addresses into geographic coordinates. These services include address validation, standardization, geocoding, reverse geocoding, enhanced geocoding and autocomplete.
+  description: |
+    Precisely Data Integrity Suite offers different Geo Addressing services that can be used to convert physical addresses into geographic coordinates. These services include address validation, standardization, geocoding, reverse geocoding, enhanced geocoding and autocomplete.
+
+    <details>
+        <summary>Error Codes</summary>
+
+    APIs will return the following error codes in case of any error:
+
+
+    | Error Code                 | Description
+    |----------------------------|-------------------------------------------------------
+    | DIS-LI-1011                | Service is not available to serve the request
+    | DIS-LI-1012                | Issue with internal services
+    | DIS-LI-1013                | JWT token is not valid
+    | DIS-LI-1014                | Batch size must not exceed 25
+    | DIS-LI-1015                | Country is not provided in the request
+    | DIS-LI-1016                | Requested Country is not supported
+    | DIS-LI-1017                | Key type should be either PB_KEY or GNAF_PID only
+    | DIS-LI-1018                | Request Body is not valid
+    | DIS-LI-1019                | Request body is not specified in the request
+    | DIS-LI-1020                | Invalid Flow Type for geocode enhanced API
+    | DIS-LI-1021                | Language: Requested Desired Language not supported in Requested Country
+    | DIS-LI-1022                | Invalid desired alternate language code provided in custom preference
+    | DIS-LI-1023                | Desired alternate language code is not provided in custom preference
+    | DIS-LI-1024                | Workspace ID is not valid in JWT token
+    | DIS-LI-1025                | Type should be either POSTAL or CITY only
+    | DIS-LI-1026                | Provided country is not supported for GNAF_PID
+    | DIS-LI-1027                | Lookup key cannot be null or empty
+    </details>
   version: '1.0'
 servers:
   - url: https://dis-developer.api.cloud.precisely.com
@@ -104,7 +132,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Address autocompleted Successfully
+          description: Address predicted successfully
           content:
             application/json:
               schema:
@@ -295,8 +323,10 @@ paths:
                     errors:
                       - status: INVALID_TOKEN
                         errorMessage: Invalid token (DIS-LI-1013)
+        '429':
+          description: Too many requests
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -307,6 +337,18 @@ paths:
                     errors:
                       - status: INTERNAL_ERROR
                         errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: SERVICE_UNAVAILABLE
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1011)
       security:
         - bearerAuth: []
   /li/v1/oas/geocode:
@@ -402,7 +444,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Address geocoded Successfully
+          description: Address(es) geocoded successfully
           content:
             application/json:
               schema:
@@ -568,7 +610,7 @@ paths:
                               RANGE_PARITY: E
                               CBSA_DIVISION_NUMBER: '15764'
         '206':
-          description: Address geocoded Partially
+          description: Address(es) geocoded partially
           content:
             application/json:
               schema:
@@ -759,8 +801,10 @@ paths:
                     errors:
                       - status: INVALID_TOKEN
                         errorMessage: Invalid token (DIS-LI-1013)
+        '429':
+          description: Too many requests
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -771,6 +815,18 @@ paths:
                     errors:
                       - status: INTERNAL_ERROR
                         errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: SERVICE_UNAVAILABLE
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1011)
       security:
         - bearerAuth: []
   /li/v1/oas/lookup:
@@ -829,7 +885,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Address lookup Successfully
+          description: Address(es) lookup successfully
           content:
             application/json:
               schema:
@@ -982,7 +1038,7 @@ paths:
                               CBSA_NAME: ALBANY-SCHENECTADY-TROY, NY METROPOLITAN STATISTICAL AREA
                               RANGE_PARITY: O
         '206':
-          description: Address lookup Partially
+          description: Address(es) lookup partially
           content:
             application/json:
               schema:
@@ -1160,8 +1216,10 @@ paths:
                     errors:
                       - status: INVALID_TOKEN
                         errorMessage: Invalid token (DIS-LI-1013)
+        '429':
+          description: Too many requests
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -1172,6 +1230,18 @@ paths:
                     errors:
                       - status: INTERNAL_ERROR
                         errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: SERVICE_UNAVAILABLE
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1011)
       security:
         - bearerAuth: []
   /li/v1/oas/reverse-geocode:
@@ -1226,7 +1296,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Location reverse-geocoded Successfully
+          description: Location reverse-geocoded successfully
           content:
             application/json:
               schema:
@@ -1376,7 +1446,7 @@ paths:
                               ZIP10: 12180-8371
                               CBSA_NAME: ALBANY-SCHENECTADY-TROY, NY METROPOLITAN STATISTICAL AREA
         '206':
-          description: Location reverse-geocoded Partially
+          description: Location reverse-geocoded partially
           content:
             application/json:
               schema:
@@ -1551,8 +1621,10 @@ paths:
                     errors:
                       - status: INVALID_TOKEN
                         errorMessage: Invalid token (DIS-LI-1013)
+        '429':
+          description: Too many requests
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -1563,6 +1635,18 @@ paths:
                     errors:
                       - status: INTERNAL_ERROR
                         errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: SERVICE_UNAVAILABLE
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1011)
       security:
         - bearerAuth: []
   /li/v1/oas/verify:
@@ -1657,7 +1741,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Address verified Successfully
+          description: Address(es) verified successfully
           content:
             application/json:
               schema:
@@ -1808,7 +1892,7 @@ paths:
                               RANGE_PARITY: E
                               CBSA_DIVISION_NUMBER: '15764'
         '206':
-          description: Address verified Partially
+          description: Address(es) verified partially
           content:
             application/json:
               schema:
@@ -1984,8 +2068,10 @@ paths:
                     errors:
                       - status: INVALID_TOKEN
                         errorMessage: Invalid token (DIS-LI-1013)
+        '429':
+          description: Too many requests
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -1996,6 +2082,18 @@ paths:
                     errors:
                       - status: INTERNAL_ERROR
                         errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: SERVICE_UNAVAILABLE
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1011)
       security:
         - bearerAuth: []
   /v1/autocomplete/postal-city:
@@ -2067,7 +2165,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Address autocompleted Successfully
+          description: Address predicted successfully
           content:
             application/json:
               schema:
@@ -2263,8 +2361,10 @@ paths:
                     errors:
                       - status: INVALID_TOKEN
                         errorMessage: Invalid token (DIS-LI-1013)
+        '429':
+          description: Too many requests
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -2275,6 +2375,18 @@ paths:
                     errors:
                       - status: INTERNAL_ERROR
                         errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: SERVICE_UNAVAILABLE
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1011)
       security:
         - bearerAuth: []
   /v1/geocode/enhanced:
@@ -2379,7 +2491,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Address geocode_1d Successfully
+          description: Address(es) geocode_1d successfully
           content:
             application/json:
               schema:
@@ -2545,7 +2657,7 @@ paths:
                               RANGE_PARITY: E
                               CBSA_DIVISION_NUMBER: '15764'
         '206':
-          description: Address geocode_1d Partially
+          description: Address(es) geocode_1d partially
           content:
             application/json:
               schema:
@@ -2736,8 +2848,10 @@ paths:
                     errors:
                       - status: INVALID_TOKEN
                         errorMessage: Invalid token (DIS-LI-1013)
+        '429':
+          description: Too many requests
         '500':
-          description: Internal Server Error
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -2748,6 +2862,18 @@ paths:
                     errors:
                       - status: INTERNAL_ERROR
                         errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1012)
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                example:
+                  value:
+                    errors:
+                      - status: SERVICE_UNAVAILABLE
+                        errorMessage: Issue with internal services. Please try again after sometime (DIS-LI-1011)
       security:
         - bearerAuth: []
 components:
@@ -3156,6 +3282,11 @@ components:
         - POI
         - POSTAL_BUILDING
         - PO_BOX
+    LookupKeyType:
+      type: string
+      enum:
+        - PB_KEY
+        - GNAF_PID
     LookupRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
@@ -3181,16 +3312,10 @@ components:
       required:
         - country
         - key
-        - type
       type: object
       properties:
         type:
-          type: string
-          description: |-
-            LookupType controls what type of information will be requested. For example,
-
-            "PB_KEY" for USA data
-            "GNAF_PID for AUS G-NAF data
+          $ref: '#/components/schemas/LookupKeyType'
         country:
           type: string
           description: Name of country in ISO 3166-1 Alpha-2 or Alpha-3 format, or a common name of the country, such as United States of America
